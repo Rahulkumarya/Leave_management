@@ -1,0 +1,364 @@
+{% extends "leave_app/base.html" %}
+{% block title %}HR - Leave Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">HR Dashboard - คำขอลางานทั้งหมด</h1>
+
+<div class="flex justify-between items-center mb-3">
+    <div class="text-sm text-gray-600">
+        ใช้ตัวกรองด้านล่างเพื่อค้นหาคำขอลางาน
+    </div>
+    <div class="space-x-2">
+        <a href="{% url 'leave_app:hr_employee_create' %}" ...>+ เพิ่มพนักงานใหม่</a>
+        <a href="{% url 'leave_app:hr_employee_import' %}" ...>⬆ นำเข้าพนักงานจาก Excel</a>
+        <a href="{% url 'leave_app:hr_leave_balance_manage' %}"
+            class="px-3 py-2 bg-orange-500 text-white rounded text-sm">
+            โควต้าวันลา
+        </a>
+    </div>
+</div>
+<!-- Filter Form -->
+<form method="get" class="bg-white rounded shadow p-4 mb-4 text-sm">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="block mb-1 font-medium">สถานะ</label>
+            <select name="status" class="border p-2 rounded w-full">
+                <option value="">-- ทั้งหมด --</option>
+                {% for value, label in statuses %}
+                <option value="{{ value }}" {% if filter_status==value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium">แผนก</label>
+            <select name="department" class="border p-2 rounded w-full">
+                <option value="">-- ทั้งหมด --</option>
+                {% for dept in departments %}
+                <option value="{{ dept.id }}" {% if filter_department==dept.id|stringformat:"s" %}selected{% endif %}>
+                    {{ dept.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium">ประเภทการลา</label>
+            <select name="leave_type" class="border p-2 rounded w-full">
+                <option value="">-- ทั้งหมด --</option>
+                {% for lt in leave_types %}
+                <option value="{{ lt.id }}" {% if filter_leave_type==lt.id|stringformat:"s" %}selected{% endif %}>
+                    {{ lt.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium">พนักงาน</label>
+            <select name="employee" class="border p-2 rounded w-full">
+                <option value="">-- ทั้งหมด --</option>
+                {% for emp in employees %}
+                <option value="{{ emp.id }}" {% if filter_employee==emp.id|stringformat:"s" %}selected{% endif %}>
+                    {{ emp.employee_code }} - {{ emp.user.get_full_name|default:emp.user.username }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium">วันที่เริ่ม (จาก)</label>
+            <input type="date" name="date_from" value="{{ filter_date_from }}" class="border p-2 rounded w-full">
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium">วันที่สิ้นสุด (ถึง)</label>
+            <input type="date" name="date_to" value="{{ filter_date_to }}" class="border p-2 rounded w-full">
+        </div>
+    </div>
+
+    <div class="mt-4 flex gap-2">
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
+            กรองข้อมูล
+        </button>
+        <a href="{% url 'leave_app:hr_leave_dashboard' %}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded">
+            ล้างตัวกรอง
+        </a>
+    </div>
+</form>
+
+<div class="mb-4 flex gap-2">
+    <a href="{% url 'leave_app:hr_export_leaves_csv' %}?status={{ filter_status }}&department={{ filter_department }}&leave_type={{ filter_leave_type }}&employee={{ filter_employee }}&date_from={{ filter_date_from }}&date_to={{ filter_date_to }}"
+        class="px-3 py-2 bg-gray-700 text-white rounded text-sm">
+        ⬇ Export CSV
+    </a>
+    <a href="{% url 'leave_app:hr_export_leaves_excel' %}?status={{ filter_status }}&department={{ filter_department }}&leave_type={{ filter_leave_type }}&employee={{ filter_employee }}&date_from={{ filter_date_from }}&date_to={{ filter_date_to }}"
+        class="px-3 py-2 bg-green-700 text-white rounded text-sm">
+        ⬇ Export Excel
+    </a>
+</div>
+
+</form>
+
+<!-- Result Table -->
+<table class="w-full text-sm bg-white rounded shadow overflow-hidden">
+    <thead class="bg-gray-50">
+        <tr>
+            <th class="text-left py-2 px-3">วันที่ยื่น</th>
+            <th class="text-left px-3">พนักงาน</th>
+            <th class="text-left px-3">แผนก</th>
+            <th class="text-left px-3">ประเภท</th>
+            <th class="text-left px-3">ช่วงเวลา</th>
+            <th class="text-left px-3">สถานะ</th>
+            <th class="text-left px-3">เหตุผล</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for leave in leaves %}
+        <tr class="border-t">
+            <td class="py-2 px-3">
+                {{ leave.created_at|date:"Y-m-d H:i" }}
+            </td>
+            <td class="px-3">
+                {{ leave.employee.employee_code }} -
+                {{ leave.employee.user.get_full_name|default:leave.employee.user.username }}
+            </td>
+            <td class="px-3">
+                {{ leave.employee.department.name|default:"-" }}
+            </td>
+            <td class="px-3">
+                {{ leave.leave_type.name }}
+            </td>
+            <td class="px-3">
+                {{ leave.start_date }} - {{ leave.end_date }}
+                {% if leave.half_day %}(ครึ่งวัน){% endif %}
+            </td>
+            <td class="px-3">
+                {% if leave.status == "PENDING" %}
+                <span class="px-2 py-1 rounded bg-yellow-100 text-yellow-800 text-xs">
+                    {{ leave.get_status_display }}
+                </span>
+                {% elif leave.status == "APPROVED" %}
+                <span class="px-2 py-1 rounded bg-green-100 text-green-800 text-xs">
+                    {{ leave.get_status_display }}
+                </span>
+                {% elif leave.status == "REJECTED" %}
+                <span class="px-2 py-1 rounded bg-red-100 text-red-800 text-xs">
+                    {{ leave.get_status_display }}
+                </span>
+                {% else %}
+                <span class="px-2 py-1 rounded bg-gray-100 text-gray-800 text-xs">
+                    {{ leave.get_status_display }}
+                </span>
+                {% endif %}
+            </td>
+            <td class="px-3 truncate max-w-xs">
+                {{ leave.reason|truncatechars:60 }}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="py-3 text-center text-gray-500">
+                ยังไม่มีคำขอลางาน
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}{% extends "leave_app/base.html" %}
+{% block title %}HR - Leave Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold tracking-tight mb-2">
+    HR Dashboard - คำขอลางานทั้งหมด
+</h1>
+<p class="mb-4 text-sm text-slate-500 dark:text-slate-400">
+    ใช้ตัวกรองด้านล่างเพื่อค้นหาและส่งออกข้อมูลคำขอลางาน
+</p>
+
+<div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+    <div class="text-sm text-slate-500 dark:text-slate-400">
+        ตัวกรองขั้นสูงสำหรับ HR
+    </div>
+    <div class="space-x-2 text-sm">
+        <a href="{% url 'leave_app:hr_employee_create' %}" class="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 font-medium text-white shadow-sm
+                  hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400">
+            + เพิ่มพนักงานใหม่
+        </a>
+        <a href="{% url 'leave_app:hr_employee_import' %}" class="inline-flex items-center rounded-lg bg-indigo-600 px-3 py-2 font-medium text-white shadow-sm
+                  hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+            ⬆ นำเข้าพนักงานจาก Excel
+        </a>
+        <a href="{% url 'leave_app:hr_leave_balance_manage' %}" class="inline-flex items-center rounded-lg bg-orange-500 px-3 py-2 font-medium text-white shadow-sm
+                  hover:bg-orange-400 dark:bg-orange-500 dark:hover:bg-orange-400">
+            โควต้าวันลา
+        </a>
+    </div>
+</div>
+
+<form method="get" class="mb-4 rounded-2xl border border-slate-100 bg-white/80 p-4 text-sm shadow-sm
+             dark:border-slate-800 dark:bg-slate-900/70">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="block mb-1 font-medium text-slate-700 dark:text-slate-200">สถานะ</label>
+            <select name="status" class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
+                           dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50">
+                <option value="">-- ทั้งหมด --</option>
+                {% for value, label in statuses %}
+                <option value="{{ value }}" {% if filter_status==value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium text-slate-700 dark:text-slate-200">แผนก</label>
+            <select name="department" class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
+                           dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50">
+                <option value="">-- ทั้งหมด --</option>
+                {% for dept in departments %}
+                <option value="{{ dept.id }}" {% if filter_department==dept.id|stringformat:"s" %}selected{% endif %}>
+                    {{ dept.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium text-slate-700 dark:text-slate-200">ประเภทการลา</label>
+            <select name="leave_type" class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
+                           dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50">
+                <option value="">-- ทั้งหมด --</option>
+                {% for lt in leave_types %}
+                <option value="{{ lt.id }}" {% if filter_leave_type==lt.id|stringformat:"s" %}selected{% endif %}>
+                    {{ lt.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium text-slate-700 dark:text-slate-200">พนักงาน</label>
+            <select name="employee" class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
+                           dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50">
+                <option value="">-- ทั้งหมด --</option>
+                {% for emp in employees %}
+                <option value="{{ emp.id }}" {% if filter_employee==emp.id|stringformat:"s" %}selected{% endif %}>
+                    {{ emp.employee_code }} - {{ emp.user.get_full_name|default:emp.user.username }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium text-slate-700 dark:text-slate-200">วันที่เริ่ม (จาก)</label>
+            <input type="date" name="date_from" value="{{ filter_date_from }}" class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
+                          dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50">
+        </div>
+
+        <div>
+            <label class="block mb-1 font-medium text-slate-700 dark:text-slate-200">วันที่สิ้นสุด (ถึง)</label>
+            <input type="date" name="date_to" value="{{ filter_date_to }}" class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
+                          dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50">
+        </div>
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+        <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm
+                       hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400">
+            กรองข้อมูล
+        </button>
+        <a href="{% url 'leave_app:hr_leave_dashboard' %}" class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800
+                  hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
+            ล้างตัวกรอง
+        </a>
+    </div>
+</form>
+
+<div class="mb-4 flex flex-wrap gap-2 text-sm">
+    <a href="{% url 'leave_app:hr_export_leaves_csv' %}?status={{ filter_status }}&department={{ filter_department }}&leave_type={{ filter_leave_type }}&employee={{ filter_employee }}&date_from={{ filter_date_from }}&date_to={{ filter_date_to }}"
+        class="inline-flex items-center rounded-lg bg-slate-700 px-3 py-2 font-medium text-white shadow-sm
+              hover:bg-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700">
+        ⬇ Export CSV
+    </a>
+    <a href="{% url 'leave_app:hr_export_leaves_excel' %}?status={{ filter_status }}&department={{ filter_department }}&leave_type={{ filter_leave_type }}&employee={{ filter_employee }}&date_from={{ filter_date_from }}&date_to={{ filter_date_to }}"
+        class="inline-flex items-center rounded-lg bg-green-700 px-3 py-2 font-medium text-white shadow-sm
+              hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500">
+        ⬇ Export Excel
+    </a>
+</div>
+
+<table class="w-full text-sm rounded-2xl border border-slate-100 bg-white/80 shadow-sm
+               dark:border-slate-800 dark:bg-slate-900/70">
+    <thead class="bg-slate-50 text-slate-700 dark:bg-slate-800/70 dark:text-slate-100">
+        <tr>
+            <th class="text-left py-2 px-3">วันที่ยื่น</th>
+            <th class="text-left px-3">พนักงาน</th>
+            <th class="text-left px-3">แผนก</th>
+            <th class="text-left px-3">ประเภท</th>
+            <th class="text-left px-3">ช่วงเวลา</th>
+            <th class="text-left px-3">สถานะ</th>
+            <th class="text-left px-3">เหตุผล</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for leave in leaves %}
+        <tr class="border-t border-slate-100 dark:border-slate-800">
+            <td class="py-2 px-3">
+                {{ leave.created_at|date:"Y-m-d H:i" }}
+            </td>
+            <td class="px-3">
+                {{ leave.employee.employee_code }} -
+                {{ leave.employee.user.get_full_name|default:leave.employee.user.username }}
+            </td>
+            <td class="px-3">
+                {{ leave.employee.department.name|default:"-" }}
+            </td>
+            <td class="px-3">
+                {{ leave.leave_type.name }}
+            </td>
+            <td class="px-3">
+                {{ leave.start_date }} - {{ leave.end_date }}
+                {% if leave.half_day %}(ครึ่งวัน){% endif %}
+            </td>
+            <td class="px-3">
+                {% if leave.status == "PENDING" %}
+                <span class="px-2 py-1 rounded-full bg-amber-100 text-amber-800 text-xs
+                             dark:bg-amber-900/40 dark:text-amber-200">
+                    {{ leave.get_status_display }}
+                </span>
+                {% elif leave.status == "APPROVED" %}
+                <span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs
+                             dark:bg-emerald-900/40 dark:text-emerald-200">
+                    {{ leave.get_status_display }}
+                </span>
+                {% elif leave.status == "REJECTED" %}
+                <span class="px-2 py-1 rounded-full bg-rose-100 text-rose-800 text-xs
+                             dark:bg-rose-900/40 dark:text-rose-200">
+                    {{ leave.get_status_display }}
+                </span>
+                {% else %}
+                <span class="px-2 py-1 rounded-full bg-slate-100 text-slate-800 text-xs
+                             dark:bg-slate-800/70 dark:text-slate-200">
+                    {{ leave.get_status_display }}
+                </span>
+                {% endif %}
+            </td>
+            <td class="px-3 truncate max-w-xs">
+                {{ leave.reason|truncatechars:60 }}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="py-3 text-center text-slate-500 dark:text-slate-400">
+                ยังไม่มีคำขอลางาน
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

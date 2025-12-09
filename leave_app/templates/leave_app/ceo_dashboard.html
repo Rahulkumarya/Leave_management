@@ -1,0 +1,129 @@
+{% extends "leave_app/base.html" %}
+{% block title %}CEO Dashboard{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-semibold tracking-tight">CEO Dashboard</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+            ภาพรวมการลาทั้งบริษัท (ปี {{ year }})
+        </p>
+    </div>
+
+    <form method="get" class="flex items-center gap-2 text-sm">
+        <label class="text-slate-500 dark:text-slate-400">ปี:</label>
+        <input type="number" name="year" value="{{ year }}" class="w-24 rounded-lg border border-slate-200 bg-white/80 px-2 py-1 text-sm
+                      dark:border-slate-700 dark:bg-slate-900/70">
+        <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-medium text-white shadow-sm
+                       hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+            เปลี่ยนปี
+        </button>
+    </form>
+</div>
+
+<div class="grid grid-cols-1 gap-4 md:grid-cols-4 mb-6">
+    <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
+                dark:border-slate-800 dark:bg-slate-900/70">
+        <p class="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Employees</p>
+        <p class="mt-2 text-2xl font-semibold">{{ total_employees }}</p>
+    </div>
+    <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
+                dark:border-slate-800 dark:bg-slate-900/70">
+        <p class="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">Total Requests</p>
+        <p class="mt-2 text-2xl font-semibold">{{ total_requests }}</p>
+    </div>
+    <div class="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-4 shadow-sm
+                dark:border-emerald-800 dark:bg-slate-900/70">
+        <p class="text-[11px] uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Approved</p>
+        <p class="mt-2 text-2xl font-semibold text-emerald-700 dark:text-emerald-300">
+            {{ approved_count }}
+        </p>
+    </div>
+    <div class="rounded-2xl border border-amber-100 bg-amber-50/80 p-4 shadow-sm
+                dark:border-amber-800 dark:bg-slate-900/70">
+        <p class="text-[11px] uppercase tracking-wide text-amber-700 dark:text-amber-300">Pending</p>
+        <p class="mt-2 text-2xl font-semibold text-amber-700 dark:text-amber-300">
+            {{ pending_count }}
+        </p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
+                dark:border-slate-800 dark:bg-slate-900/70">
+        <p class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+            จำนวนคำขอลาต่อเดือน (ปี {{ year }})
+        </p>
+        <canvas id="monthlyChart" class="w-full"></canvas>
+    </div>
+
+    <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
+                dark:border-slate-800 dark:bg-slate-900/70">
+        <p class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+            จำนวนคำขอลาแบ่งตามแผนก
+        </p>
+        <canvas id="departmentChart" class="w-full"></canvas>
+    </div>
+
+    <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm lg:col-span-2
+                dark:border-slate-800 dark:bg-slate-900/70">
+        <p class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+            สัดส่วนคำขอลาแบ่งตามประเภทการลา
+        </p>
+        <div class="max-w-md mx-auto">
+            <canvas id="typeChart" class="w-full"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const monthlyLabels = JSON.parse('{{ monthly_labels_json|escapejs }}');
+    const monthlyCounts = JSON.parse('{{ monthly_counts_json|escapejs }}');
+    const departmentLabels = JSON.parse('{{ department_labels_json|escapejs }}');
+    const departmentCounts = JSON.parse('{{ department_counts_json|escapejs }}');
+    const leaveTypeLabels = JSON.parse('{{ leave_type_labels_json|escapejs }}');
+    const leaveTypeCounts = JSON.parse('{{ leave_type_counts_json|escapejs }}');
+
+    new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: monthlyLabels,
+            datasets: [{
+                label: 'จำนวนคำขอ',
+                data: monthlyCounts,
+                tension: 0.3,
+                fill: false,
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    new Chart(document.getElementById('departmentChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: departmentLabels,
+            datasets: [{
+                label: 'จำนวนคำขอ',
+                data: departmentCounts,
+            }]
+        },
+        options: {
+            scales: { x: { beginAtZero: true } }
+        }
+    });
+
+    new Chart(document.getElementById('typeChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: leaveTypeLabels,
+            datasets: [{
+                data: leaveTypeCounts,
+            }]
+        },
+    });
+</script>
+{% endblock %}

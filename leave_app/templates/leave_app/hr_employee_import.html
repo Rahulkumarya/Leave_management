@@ -1,0 +1,53 @@
+{% extends "leave_app/base.html" %}
+{% block title %}HR - นำเข้าพนักงานจาก Excel{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-semibold tracking-tight">นำเข้าพนักงานจาก Excel</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+            อัปโหลดไฟล์ .xlsx เพื่อสร้างพนักงานและโปรไฟล์อัตโนมัติ
+        </p>
+    </div>
+</div>
+
+<div class="max-w-xl space-y-4">
+    <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 text-sm shadow-sm
+                dark:border-slate-800 dark:bg-slate-900/70">
+        <p class="mb-2 font-medium text-slate-800 dark:text-slate-100">รูปแบบไฟล์ที่รองรับ (.xlsx)</p>
+        <p class="mb-1 text-slate-600 dark:text-slate-300">แถวที่ 1 เป็นหัวตาราง</p>
+        <p class="mb-1 text-slate-600 dark:text-slate-300">แถวที่ 2 เป็นต้นไปเป็นข้อมูลพนักงาน:</p>
+        <ul class="list-disc list-inside text-slate-600 dark:text-slate-300">
+            <li>A: username</li>
+            <li>B: password</li>
+            <li>C: employee_code</li>
+            <li>D: department_code (เช่น IT, HR)</li>
+            <li>E: manager_username</li>
+        </ul>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
+                 dark:border-slate-800 dark:bg-slate-900/70">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                {{ form.file.label }}
+            </label>
+            {{ form.file }}
+            {% if form.file.help_text %}
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ form.file.help_text }}</p>
+            {% endif %}
+            {% if form.file.errors %}
+            <p class="mt-1 text-xs text-rose-500">{{ form.file.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="flex justify-end">
+            <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm
+                           hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                ⬆ นำเข้าพนักงาน
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

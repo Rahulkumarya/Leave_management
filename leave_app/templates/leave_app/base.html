@@ -1,0 +1,157 @@
+{% load static %}
+{% load nav_extras %}
+
+<!doctype html>
+<html lang="en" class="h-full">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Leave System{% endblock %}</title>
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-300
+             dark:bg-slate-950 dark:text-slate-50">
+
+    <nav class="bg-white/80 backdrop-blur border-b border-slate-200
+               dark:bg-slate-900/80 dark:border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="{% url 'leave_app:dashboard' %}"
+                class="font-semibold text-lg tracking-tight text-slate-900 dark:text-slate-50">
+                Leave<span class="text-indigo-600 dark:text-indigo-400">System</span>
+            </a>
+
+            <div class="flex items-center gap-4 text-sm">
+                {% if user.is_authenticated %}
+                <a href="{% url 'leave_app:leave_request_list' %}"
+                    class="hover:text-indigo-600 dark:hover:text-indigo-300">
+                    My Leaves
+                </a>
+
+                {% if user|has_group:"MANAGER" or user.is_superuser %}
+                <a href="{% url 'leave_app:manager_leave_list' %}"
+                    class="text-purple-700 dark:text-purple-300 hover:underline">
+                    Manager
+                </a>
+                {% endif %}
+
+                {% if user|has_group:"HR" or user.is_staff or user.is_superuser %}
+                <a href="{% url 'leave_app:hr_leave_dashboard' %}"
+                    class="text-amber-700 dark:text-amber-300 hover:underline">
+                    HR
+                </a>
+                {% endif %}
+
+                {% if user|has_group:"CEO" or user.is_superuser %}
+                <a href="{% url 'leave_app:ceo_dashboard' %}"
+                    class="text-indigo-700 dark:text-indigo-300 hover:underline">
+                    CEO
+                </a>
+                {% endif %}
+
+                {% if user.is_staff or user.is_superuser %}
+                <a href="/admin/" class="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+                    admin
+                </a>
+                {% endif %}
+
+                <span class="hidden sm:inline text-xs text-slate-500 dark:text-slate-400">
+                    {{ user.username }}
+                </span>
+
+                <!-- Theme toggle -->
+                <button id="theme-toggle" type="button" class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-xs
+                               text-slate-600 bg-white/70 hover:bg-slate-50
+                               dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700">
+                    <span class="theme-label-light">☀ Light</span>
+                    <span class="theme-label-dark hidden">🌙 Dark</span>
+                </button>
+
+                <a href="{% url 'logout' %}" class="text-red-500 hover:text-red-600">
+                    Logout
+                </a>
+                {% else %}
+
+                <button id="theme-toggle" type="button" class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-xs
+                               text-slate-600 bg-white/70 hover:bg-slate-50
+                               dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700">
+                    <span class="theme-label-light">☀ Light</span>
+                    <span class="theme-label-dark hidden">🌙 Dark</span>
+                </button>
+
+                <a href="{% url 'login' %}"
+                    class="text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200">
+                    Login
+                </a>
+                <a href="{% url 'register' %}"
+                    class="text-green-600 hover:text-green-700 dark:text-green-300 dark:hover:text-green-200">
+                    Register
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        {% if messages %}
+        <div class="mb-4 space-y-2">
+            {% for message in messages %}
+            <div class="p-3 rounded text-sm border
+                {% if message.tags == 'success' %}
+                    bg-emerald-50 text-emerald-800 border-emerald-100
+                    dark:bg-emerald-900/40 dark:text-emerald-200 dark:border-emerald-800
+                {% elif message.tags == 'error' %}
+                    bg-rose-50 text-rose-800 border-rose-100
+                    dark:bg-rose-900/40 dark:text-rose-200 dark:border-rose-800
+                {% else %}
+                    bg-sky-50 text-sky-800 border-sky-100
+                    dark:bg-sky-900/40 dark:text-sky-200 dark:border-sky-800
+                {% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const stored = localStorage.getItem("theme");
+
+            if (stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+                root.classList.add("dark");
+            }
+
+            const btn = document.getElementById("theme-toggle");
+            const labelLight = btn?.querySelector(".theme-label-light");
+            const labelDark = btn?.querySelector(".theme-label-dark");
+
+            function syncLabel() {
+                const isDark = root.classList.contains("dark");
+                if (!labelLight || !labelDark) return;
+                if (isDark) {
+                    labelLight.classList.add("hidden");
+                    labelDark.classList.remove("hidden");
+                } else {
+                    labelDark.classList.add("hidden");
+                    labelLight.classList.remove("hidden");
+                }
+            }
+
+            syncLabel();
+
+            if (btn) {
+                btn.addEventListener("click", () => {
+                    const isDark = root.classList.toggle("dark");
+                    localStorage.setItem("theme", isDark ? "dark" : "light");
+                    syncLabel();
+                });
+            }
+        })();
+    </script>
+</body>
+
+</html>

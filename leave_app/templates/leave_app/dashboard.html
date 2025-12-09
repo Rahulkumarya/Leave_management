@@ -1,0 +1,94 @@
+{% extends "leave_app/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+            ภาพรวมการลาของคุณ
+        </p>
+    </div>
+
+    <a href="{% url 'leave_app:leave_request_create' %}" class="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white
+              shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1
+              dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus:ring-indigo-300">
+        + ขออนุมัติลางาน
+    </a>
+</div>
+
+<div class="grid gap-4 md:grid-cols-2 mb-6">
+    <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
+                dark:border-slate-800 dark:bg-slate-900/70">
+        <h2 class="text-sm font-semibold text-slate-700 mb-2 dark:text-slate-200">
+            โปรไฟล์พนักงาน
+        </h2>
+        <dl class="space-y-1 text-sm">
+            <div class="flex justify-between">
+                <dt class="text-slate-500 dark:text-slate-400">รหัสพนักงาน</dt>
+                <dd class="font-medium">{{ profile.employee_code }}</dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-slate-500 dark:text-slate-400">ชื่อ</dt>
+                <dd class="font-medium">
+                    {{ profile.user.get_full_name|default:profile.user.username }}
+                </dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-slate-500 dark:text-slate-400">แผนก</dt>
+                <dd class="font-medium">{{ profile.department|default:"-" }}</dd>
+            </div>
+        </dl>
+    </div>
+
+    <div class="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4 shadow-sm
+                dark:border-indigo-800 dark:bg-slate-900/80">
+        <h2 class="text-sm font-semibold text-indigo-900 mb-2 dark:text-indigo-200">
+            สรุปคำขอล่าสุด
+        </h2>
+        <p class="text-xs text-slate-500 mb-2 dark:text-slate-400">
+            รายการล่าสุด 5 รายการ
+        </p>
+
+        <div class="max-h-60 overflow-y-auto">
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="border-b border-indigo-100/70 dark:border-slate-700">
+                        <th class="text-left py-1 pr-2 font-medium">ประเภท</th>
+                        <th class="text-left pr-2 font-medium">ช่วงเวลา</th>
+                        <th class="text-left font-medium">สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in recent_leaves %}
+                    <tr class="border-b border-indigo-50/60 last:border-0 dark:border-slate-800">
+                        <td class="py-1 pr-2">{{ leave.leave_type.name }}</td>
+                        <td class="pr-2">{{ leave.start_date }} - {{ leave.end_date }}</td>
+                        <td>
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium
+                                {% if leave.status == 'PENDING' %}
+                                    bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200
+                                {% elif leave.status == 'APPROVED' %}
+                                    bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200
+                                {% elif leave.status == 'REJECTED' %}
+                                    bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200
+                                {% else %}
+                                    bg-slate-100 text-slate-800 dark:bg-slate-800/70 dark:text-slate-200
+                                {% endif %}">
+                                {{ leave.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="py-3 text-center text-slate-500 dark:text-slate-400">
+                            ยังไม่มีคำขอ
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
