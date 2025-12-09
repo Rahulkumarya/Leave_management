@@ -48,9 +48,16 @@
     (ปี {{ year }})
 </h2>
 
-<form method="post"
-      class="rounded-2xl border border-slate-100 bg-white/80 p-4 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
+<form method="post" class="rounded-2xl border border-slate-100 bg-white/80 p-4 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
     {% csrf_token %}
+    {{ formset.management_form }}
+
+    {% if formset.non_form_errors %}
+    <div class="mb-2 text-xs text-rose-500">
+        {{ formset.non_form_errors }}
+    </div>
+    {% endif %}
+    
     <table class="w-full text-sm">
         <thead class="bg-slate-50 dark:bg-slate-800/70">
             <tr>

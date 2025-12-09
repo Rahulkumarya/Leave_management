@@ -422,8 +422,11 @@ def hr_leave_balance_manage(request):
                 messages.success(request, "อัปเดตโควต้าวันลาเรียบร้อยแล้ว")
                 url = reverse("leave_app:hr_leave_balance_manage")
                 return redirect(f"{url}?employee={employee_id}&year={year}")
+            else:
+                messages.error(request, "กรุณาตรวจสอบข้อมูลโควต้าวันลาอีกครั้ง")
         else:
             formset = LeaveBalanceFormSet(queryset=qs)
+
 
     context = {
         "employees": employees,

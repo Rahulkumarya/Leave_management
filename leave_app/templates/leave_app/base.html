@@ -35,7 +35,7 @@
                 </a>
                 {% endif %}
 
-                {% if user|has_group:"HR" or user.is_staff or user.is_superuser %}
+                {% if user|has_group:"HR" or user.is_superuser %}
                 <a href="{% url 'leave_app:hr_leave_dashboard' %}"
                     class="text-amber-700 dark:text-amber-300 hover:underline">
                     HR

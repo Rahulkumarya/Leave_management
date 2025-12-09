@@ -33,13 +33,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'leave_app',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'leave_app',
 ]
 
 MIDDLEWARE = [
@@ -92,29 +92,29 @@ DATABASES = {
     }
 }
 
-# ใช้ console backend (แนะนำสำหรับ dev)
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# # ใช้ console backend (แนะนำสำหรับ dev)
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# ไม่จำเป็นต้องตั้ง EMAIL_HOST_USER / EMAIL_HOST_PASSWORD ตอน dev
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
-
-DEFAULT_FROM_EMAIL = "LeaveSystem <no-reply@example.com>"
-
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
+# # ไม่จำเป็นต้องตั้ง EMAIL_HOST_USER / EMAIL_HOST_PASSWORD ตอน dev
 # EMAIL_HOST = "smtp.gmail.com"
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
 
-# EMAIL_HOST_USER = env("EMAIL_HOST_USER")
-# EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+# EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+# EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 
-# DEFAULT_FROM_EMAIL = f"LeaveSystem <{EMAIL_HOST_USER}>"
+# DEFAULT_FROM_EMAIL = "LeaveSystem <no-reply@example.com>"
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+
+DEFAULT_FROM_EMAIL = f"LeaveSystem <{EMAIL_HOST_USER}>"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

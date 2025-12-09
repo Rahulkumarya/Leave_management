@@ -2,75 +2,116 @@
 {% block title %}Manager - Leave Detail{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-semibold tracking-tight mb-4">รายละเอียดคำขอลา</h1>
+<h1 class="text-2xl font-semibold tracking-tight mb-4">
+    รายละเอียดคำขอลางาน
+</h1>
 
-<div class="rounded-2xl border border-slate-100 bg-white/80 p-4 mb-4 shadow-sm
-            dark:border-slate-800 dark:bg-slate-900/70">
-    <p class="mb-1">
-        <span class="font-medium text-slate-700 dark:text-slate-200">พนักงาน:</span>
-        {{ leave.employee.user.get_full_name|default:leave.employee.user.username }}
-    </p>
-    <p class="mb-1">
-        <span class="font-medium text-slate-700 dark:text-slate-200">ประเภทการลา:</span>
-        {{ leave.leave_type.name }}
-    </p>
-    <p class="mb-1">
-        <span class="font-medium text-slate-700 dark:text-slate-200">ช่วงเวลา:</span>
-        {{ leave.start_date }} - {{ leave.end_date }}
-        {% if leave.half_day %}(ครึ่งวัน){% endif %}
-    </p>
-    <p class="mb-1">
-        <span class="font-medium text-slate-700 dark:text-slate-200">สถานะปัจจุบัน:</span>
-        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium
-            {% if leave.status == 'PENDING' %}
-                bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200
-            {% elif leave.status == 'APPROVED' %}
-                bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200
-            {% elif leave.status == 'REJECTED' %}
-                bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200
-            {% else %}
-                bg-slate-100 text-slate-800 dark:bg-slate-800/70 dark:text-slate-200
-            {% endif %}">
-            {{ leave.get_status_display }}
-        </span>
-    </p>
-    <p class="mt-3">
-        <span class="font-medium text-slate-700 dark:text-slate-200">เหตุผล:</span><br>
-        <span class="text-sm text-slate-700 dark:text-slate-200">
-            {{ leave.reason|linebreaksbr }}
-        </span>
-    </p>
+<!-- 🔹 Info Card -->
+<div class="rounded-2xl border border-slate-100 bg-white/80 p-6 shadow-sm
+            dark:border-slate-800 dark:bg-slate-900/70 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-sm">
+        <div>
+            <span class="text-slate-500 dark:text-slate-400">พนักงาน</span>
+            <div class="font-medium text-slate-800 dark:text-slate-100">
+                {{ leave.employee.employee_code }} –
+                {{ leave.employee.user.get_full_name|default:leave.employee.user.username }}
+            </div>
+        </div>
+
+        <div>
+            <span class="text-slate-500 dark:text-slate-400">แผนก</span>
+            <div class="font-medium text-slate-800 dark:text-slate-100">
+                {{ leave.employee.department.name|default:"-" }}
+            </div>
+        </div>
+
+        <div>
+            <span class="text-slate-500 dark:text-slate-400">ประเภทการลา</span>
+            <div class="font-medium text-slate-800 dark:text-slate-100">
+                {{ leave.leave_type.name }}
+            </div>
+        </div>
+
+        <div>
+            <span class="text-slate-500 dark:text-slate-400">ช่วงเวลา</span>
+            <div class="font-medium text-slate-800 dark:text-slate-100">
+                {{ leave.start_date }} – {{ leave.end_date }}
+                {% if leave.half_day %}
+                <span class="ml-1 text-xs text-indigo-600 dark:text-indigo-400">
+                    (ครึ่งวัน)
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <span class="text-slate-500 dark:text-slate-400">สถานะ</span>
+            <div class="mt-1">
+                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                    {% if leave.status == 'PENDING' %}
+                        bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200
+                    {% elif leave.status == 'APPROVED' %}
+                        bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200
+                    {% elif leave.status == 'REJECTED' %}
+                        bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200
+                    {% else %}
+                        bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200
+                    {% endif %}
+                ">
+                    {{ leave.get_status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reason -->
+    <div class="mt-4 border-t pt-4 border-slate-200 dark:border-slate-700">
+        <div class="text-sm text-slate-500 dark:text-slate-400 mb-1">
+            เหตุผลการลา
+        </div>
+        <div class="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-line">
+            {{ leave.reason|default:"-" }}
+        </div>
+    </div>
 </div>
 
+<!-- 🔹 Action Section -->
 {% if leave.status == "PENDING" %}
-<form method="post" class="max-w-lg rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
+<form method="post"
+      class="max-w-xl rounded-2xl border border-slate-100 bg-white/80 p-6 shadow-sm
              dark:border-slate-800 dark:bg-slate-900/70">
     {% csrf_token %}
-    <div class="mb-3">
+
+    <div class="mb-4">
         <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
             หมายเหตุจากหัวหน้า (ถ้ามี)
         </label>
-        <textarea name="comment" rows="3" class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
+        <textarea name="comment" rows="3"
+                  class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
+                         focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400
                          dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50"></textarea>
     </div>
 
     <div class="flex gap-2">
-        <button type="submit" name="action" value="approve" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm
-                       hover:bg-green-500 dark:bg-green-500 dark:hover:bg-green-400"
-            onclick="return confirm('ยืนยันอนุมัติคำขอลานี้?');">
-            อนุมัติ
+        <button type="submit" name="action" value="approve"
+                class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm
+                       hover:bg-emerald-500 focus:ring-2 focus:ring-emerald-400"
+                onclick="return confirm('ยืนยันอนุมัติคำขอลานี้?');">
+            ✅ อนุมัติ
         </button>
-        <button type="submit" name="action" value="reject" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm
-                       hover:bg-rose-500 dark:bg-rose-500 dark:hover:bg-rose-400"
-            onclick="return confirm('ยืนยันปฏิเสธคำขอลานี้?');">
-            ปฏิเสธ
+
+        <button type="submit" name="action" value="reject"
+                class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm
+                       hover:bg-rose-500 focus:ring-2 focus:ring-rose-400"
+                onclick="return confirm('ยืนยันปฏิเสธคำขอลานี้?');">
+            ❌ ปฏิเสธ
         </button>
     </div>
 </form>
 {% else %}
-<div class="rounded-2xl border border-amber-200 bg-amber-50 text-amber-800 text-sm p-3
-            dark:border-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
-    คำขอนี้ถูก {{ leave.get_status_display }} แล้ว
+<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700
+            dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-200">
+    คำขอลานี้ถูก <strong>{{ leave.get_status_display }}</strong> แล้ว
 </div>
 {% endif %}
 {% endblock %}
