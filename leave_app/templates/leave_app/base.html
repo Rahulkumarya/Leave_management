@@ -8,6 +8,7 @@
     <meta charset="utf-8">
     <title>{% block title %}Leave System{% endblock %}</title>
     <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/loader.css' %}">
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-300
@@ -115,6 +116,16 @@
 
         {% block content %}{% endblock %}
     </main>
+    
+    <div id="page-loader"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm dark:bg-slate-900/60">
+        <div class="loader">
+            <div class="bar1"></div><div class="bar2"></div><div class="bar3"></div>
+            <div class="bar4"></div><div class="bar5"></div><div class="bar6"></div>
+            <div class="bar7"></div><div class="bar8"></div><div class="bar9"></div>
+            <div class="bar10"></div><div class="bar11"></div><div class="bar12"></div>
+        </div>
+    </div>
 
     <script>
         (function () {
@@ -151,6 +162,29 @@
                 });
             }
         })();
+
+        const pageLoader = document.getElementById("page-loader");
+
+        function showLoader() {
+            pageLoader.classList.remove("hidden");
+        }
+
+        function hideLoader() {
+            pageLoader.classList.add("hidden");
+        }
+
+        window.addEventListener("load", () => {
+            hideLoader();
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", () => {
+                    showLoader();
+                });
+            });
+        });
+        
     </script>
 </body>
 
