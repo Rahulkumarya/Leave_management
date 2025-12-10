@@ -3,75 +3,83 @@
 {% block title %}HR - นำเข้าพนักงานจาก Excel{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-    <div>
-        <h1 class="text-2xl font-semibold tracking-tight">นำเข้าพนักงานจาก Excel</h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400">
-            อัปโหลดไฟล์ .xlsx เพื่อสร้าง User + โปรไฟล์พนักงานอัตโนมัติ
-        </p>
-    </div>
-</div>
-
-<div class="grid gap-4 max-w-2xl">
-
-    <!-- ✅ คู่มือไฟล์ -->
-    <div class="rounded-2xl border border-slate-100 bg-white/80 p-5 shadow-sm
-                dark:border-slate-800 dark:bg-slate-900/70">
-        <h2 class="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
-            รูปแบบไฟล์ที่รองรับ (.xlsx)
-        </h2>
-
-        <ul class="space-y-1 text-sm text-slate-600 dark:text-slate-300 list-disc list-inside">
-            <li>แถวที่ 1 เป็นหัวตาราง</li>
-            <li>เริ่มข้อมูลตั้งแต่แถวที่ 2</li>
-            <li>A: <strong>username</strong></li>
-            <li>B: <strong>password</strong></li>
-            <li>C: <strong>employee_code</strong></li>
-            <li>D: <strong>department_code</strong> (เช่น IT, HR)</li>
-            <li>E: <strong>manager_username</strong> (ถ้าไม่มีเว้นว่าง)</li>
-        </ul>
-    </div>
-
-    <!-- ✅ Upload form -->
-    <form method="post" enctype="multipart/form-data"
-          class="rounded-2xl border border-slate-100 bg-white/80 p-5 shadow-sm
-                 dark:border-slate-800 dark:bg-slate-900/70">
-        {% csrf_token %}
-
-        <div class="mb-4">
-            <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-                {{ form.file.label }}
-            </label>
-
-            {{ form.file|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50 dark:file:bg-slate-800 dark:file:text-slate-100 " }}
-
-            {% if form.file.help_text %}
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                {{ form.file.help_text }}
+<div class="mx-auto">
+    <!-- Header + ปุ่มกลับ -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold tracking-tight">นำเข้าพนักงานจาก Excel</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+                อัปโหลดไฟล์ .xlsx เพื่อสร้าง User + โปรไฟล์พนักงานอัตโนมัติ
             </p>
-            {% endif %}
-            {% if form.file.errors %}
-            <p class="mt-1 text-xs text-rose-500">
-                {{ form.file.errors.0 }}
-            </p>
-            {% endif %}
         </div>
 
-        <div class="flex justify-end gap-2">
-            <a href="{% url 'leave_app:hr_employee_list' %}"
-               class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800
-                      hover:bg-slate-200
-                      dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
-                ยกเลิก
-            </a>
+        <a href="{% url 'leave_app:hr_employee_list' %}"
+           class="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+            ← กลับไปหน้ารายชื่อ
+        </a>
+    </div>
 
-            <button type="submit"
-                class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm
-                       hover:bg-indigo-500
-                       dark:bg-indigo-500 dark:hover:bg-indigo-400">
-                ⬆ นำเข้าพนักงาน
-            </button>
+    <!-- เนื้อหาอยู่กลาง -->
+    <div class="grid gap-4 max-w-2xl mx-auto">
+        <!-- ✅ คู่มือไฟล์ -->
+        <div class="rounded-2xl border border-slate-100 bg-white/80 p-5 shadow-sm
+                    dark:border-slate-800 dark:bg-slate-900/70">
+            <h2 class="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                รูปแบบไฟล์ที่รองรับ (.xlsx)
+            </h2>
+
+            <ul class="space-y-1 text-sm text-slate-600 dark:text-slate-300 list-disc list-inside">
+                <li>แถวที่ 1 เป็นหัวตาราง</li>
+                <li>เริ่มข้อมูลตั้งแต่แถวที่ 2</li>
+                <li>A: <strong>username</strong></li>
+                <li>B: <strong>password</strong></li>
+                <li>C: <strong>employee_code</strong></li>
+                <li>D: <strong>department_code</strong> (เช่น IT, HR)</li>
+                <li>E: <strong>manager_username</strong> (ถ้าไม่มีเว้นว่าง)</li>
+            </ul>
         </div>
-    </form>
+
+        <!-- ✅ Upload form -->
+        <form method="post" enctype="multipart/form-data"
+              class="rounded-2xl border border-slate-100 bg-white/80 p-5 shadow-sm
+                     dark:border-slate-800 dark:bg-slate-900/70">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {{ form.file.label }}
+                </label>
+
+                {{ form.file|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50 dark:file:bg-slate-800 dark:file:text-slate-100" }}
+
+                {% if form.file.help_text %}
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    {{ form.file.help_text }}
+                </p>
+                {% endif %}
+                {% if form.file.errors %}
+                <p class="mt-1 text-xs text-rose-500">
+                    {{ form.file.errors.0 }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <a href="{% url 'leave_app:hr_employee_list' %}"
+                   class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800
+                          hover:bg-slate-200
+                          dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
+                    ยกเลิก
+                </a>
+
+                <button type="submit"
+                        class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm
+                               hover:bg-indigo-500
+                               dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                    ⬆ นำเข้าพนักงาน
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

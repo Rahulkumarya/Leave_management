@@ -9,11 +9,15 @@
             ดูสถานะคำขอลาทั้งหมด และยกเลิกคำขอที่ยัง Pending ได้
         </p>
     </div>
-    <a href="{% url 'leave_app:leave_request_create' %}"
-       class="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white
-              shadow-sm hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
-        + ขออนุมัติลางาน
-    </a>
+    <div class="flex items-center gap-2">
+        <a href="{% url 'leave_app:my_leaves' %}" class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800
+                shadow-sm hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
+            ข้อมูลส่วนตัว & วันลาคงเหลือ
+        </a>
+        <a href="{% url 'leave_app:leave_request_create' %}" class="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+            + ขออนุมัติลางาน
+        </a>
+    </div>
 </div>
 
 <table class="w-full text-sm rounded-2xl border border-slate-100 bg-white/80 shadow-sm overflow-hidden

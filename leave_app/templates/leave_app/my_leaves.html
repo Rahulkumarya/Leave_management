@@ -1,0 +1,118 @@
+{% extends "leave_app/base.html" %}
+{% load nav_extras %}
+
+{% block title %}ข้อมูลส่วนตัว & วันลาคงเหลือ{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <h1 class="text-2xl font-semibold tracking-tight">
+            ข้อมูลส่วนตัว & วันลาคงเหลือ
+        </h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+            ดูรายละเอียดโปรไฟล์พนักงานและจำนวนวันลาที่ใช้ไป / คงเหลือ ในปี {{ current_year }}
+        </p>
+    </div>
+
+    <a href="{% url 'leave_app:leave_request_list' %}"
+       class="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+        ← กลับไปหน้าคำขอลางานของฉัน
+    </a>
+</div>
+
+<!-- การ์ดข้อมูลส่วนตัว -->
+<div class="mb-6 rounded-2xl border border-slate-100 bg-white/80 p-5 shadow-sm
+            dark:border-slate-800 dark:bg-slate-900/70">
+    <h2 class="mb-3 text-base font-semibold text-slate-800 dark:text-slate-100">
+        ข้อมูลพนักงาน
+    </h2>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 text-sm text-slate-700 dark:text-slate-200">
+        <div>
+            <div class="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                ชื่อ - นามสกุล
+            </div>
+            <div class="mt-1">
+                {{ employee.user.get_full_name|default:employee.user.username }}
+            </div>
+        </div>
+        <div>
+            <div class="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                รหัสพนักงาน
+            </div>
+            <div class="mt-1 font-mono">
+                {{ employee.employee_code }}
+            </div>
+        </div>
+        <div>
+            <div class="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                แผนก
+            </div>
+            <div class="mt-1">
+                {{ employee.department.name|default:"-" }}
+            </div>
+        </div>
+        <div>
+            <div class="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                หัวหน้า
+            </div>
+            <div class="mt-1">
+                {{ employee.manager.get_full_name|default:employee.manager.username|default:"-" }}
+            </div>
+        </div>
+        <div>
+            <div class="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                วันที่เริ่มงาน
+            </div>
+            <div class="mt-1">
+                {{ employee.join_date|date:"Y-m-d"|default:"-" }}
+            </div>
+        </div>
+        <div>
+            <div class="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                อีเมล
+            </div>
+            <div class="mt-1">
+                {{ employee.user.email|default:"-" }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- การ์ดวันลาคงเหลือ -->
+<div class="mb-2 flex items-center justify-between">
+    <h2 class="text-lg font-semibold">
+        วันลาคงเหลือ (ปี {{ current_year }})
+    </h2>
+</div>
+
+<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {% for b in balances %}
+    <div class="rounded-xl border border-slate-100 bg-white p-4 shadow-sm
+                dark:border-slate-800 dark:bg-slate-900">
+        <div class="flex items-center justify-between">
+            <div class="font-medium">
+                {{ b.leave_type.name }}
+            </div>
+            {% if not b.leave_type.is_paid %}
+            <span class="text-xs text-slate-500">(Unpaid)</span>
+            {% endif %}
+        </div>
+
+        <div class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            ใช้ไป {{ b.used }} / {{ b.allocated }} วัน
+        </div>
+
+        <div class="mt-1 text-sm">
+            คงเหลือ
+            <span class="font-semibold text-indigo-600 dark:text-indigo-400">
+                {{ b.remaining }} วัน
+            </span>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-sm text-slate-500">
+        ยังไม่มีข้อมูลวันลา
+    </p>
+    {% endfor %}
+</div>
+{% endblock %}

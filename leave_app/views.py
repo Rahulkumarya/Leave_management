@@ -4,6 +4,7 @@ from .views_employee import (
     leave_request_list,
     leave_request_create,
     leave_request_cancel,
+    my_leaves,
 )
 
 # รวม view ฝั่ง manager

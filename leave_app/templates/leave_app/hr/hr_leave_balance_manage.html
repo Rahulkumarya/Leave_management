@@ -3,97 +3,133 @@
 {% block title %}HR - Manage Leave Balance{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-semibold tracking-tight mb-2">
-    จัดการโควต้าวันลา
-</h1>
-<p class="mb-6 text-sm text-slate-500 dark:text-slate-400">
-    เลือกพนักงานและปี เพื่อแก้ไขสิทธิ์ลาในแต่ละประเภท
-</p>
+<div class="mx-auto">
 
-<form method="get"
-      class="mb-4 rounded-2xl border border-slate-100 bg-white/80 p-4 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- Header + Back Button -->
+    <div class="flex items-center justify-between mb-6">
         <div>
-            <label class="block mb-1 font-medium text-slate-700 dark:text-slate-200">พนักงาน</label>
-            <select name="employee"
-                    class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm ocus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50">
-                <option value="">-- เลือกพนักงาน --</option>
-                {% for emp in employees %}
-                <option value="{{ emp.id }}" {% if employee_id == emp.id|stringformat:"s" %}selected{% endif %}>
-                    {{ emp.employee_code }} - {{ emp.user.get_full_name|default:emp.user.username }}
-                </option>
+            <h1 class="text-2xl font-semibold tracking-tight">จัดการโควต้าวันลา</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+                เลือกพนักงานและปี เพื่อแก้ไขสิทธิ์ลาประเภทต่าง ๆ
+            </p>
+        </div>
+
+        <a href="{% url 'leave_app:hr_leave_dashboard' %}"
+           class="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+            ← กลับไปหน้าพนักงาน
+        </a>
+    </div>
+
+    <!-- Search Form -->
+    <form method="get"
+          class="mb-6 rounded-2xl border border-slate-100 bg-white/80 p-4 text-sm shadow-sm
+                 dark:border-slate-800 dark:bg-slate-900/70">
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Employee -->
+            <div>
+                <label class="block mb-1 font-medium text-slate-700 dark:text-slate-200">พนักงาน</label>
+                <select name="employee"
+                        class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
+                               focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400
+                               dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50">
+                    <option value="">-- เลือกพนักงาน --</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.id }}"
+                            {% if employee_id == emp.id|stringformat:"s" %}selected{% endif %}>
+                        {{ emp.employee_code }} - {{ emp.user.get_full_name|default:emp.user.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Year -->
+            <div>
+                <label class="block mb-1 font-medium text-slate-700 dark:text-slate-200">ปี</label>
+                <input type="number" name="year" value="{{ year }}"
+                       class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
+                              focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400
+                              dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50">
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit"
+                    class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm
+                           hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400">
+                โหลดข้อมูล
+            </button>
+        </div>
+    </form>
+
+    {% if selected_employee %}
+    <!-- Employee Info -->
+    <h2 class="text-lg font-semibold mb-3">
+        โควต้าวันลาของ {{ selected_employee.employee_code }} —
+        {{ selected_employee.user.get_full_name|default:selected_employee.user.username }}
+        (ปี {{ year }})
+    </h2>
+
+    <!-- Balance Table -->
+    <form method="post"
+          class="rounded-2xl border border-slate-100 bg-white/80 p-4 text-sm shadow-sm
+                 dark:border-slate-800 dark:bg-slate-900/70">
+
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        {% if formset.non_form_errors %}
+        <div class="mb-2 text-xs text-rose-500">
+            {{ formset.non_form_errors }}
+        </div>
+        {% endif %}
+
+        <table class="w-full text-sm rounded-lg overflow-hidden">
+            <thead class="bg-slate-50 dark:bg-slate-800/70">
+                <tr>
+                    <th class="text-left py-2 px-3">ประเภทการลา</th>
+                    <th class="text-left px-3">สิทธิ์ทั้งหมด</th>
+                    <th class="text-left px-3">ใช้ไปแล้ว</th>
+                    <th class="text-left px-3">คงเหลือ</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for form in formset %}
+                <tr class="border-t border-slate-100 dark:border-slate-800">
+                    <td class="py-2 px-3">
+                        {{ form.instance.leave_type.name }}
+                        {{ form.id }}
+                    </td>
+
+                    <td class="px-3 py-1">
+                        {{ form.allocated|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
+                    </td>
+
+                    <td class="px-3 py-1">
+                        {{ form.used|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
+                    </td>
+
+                    <td class="px-3">
+                        <span class="font-medium text-indigo-600 dark:text-indigo-400">
+                            {{ form.instance.remaining }}
+                        </span>
+                    </td>
+                </tr>
                 {% endfor %}
-            </select>
+            </tbody>
+        </table>
+
+        <!-- Submit -->
+        <div class="mt-4 flex justify-end">
+            <button type="submit"
+                    class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm
+                           hover:bg-green-500 dark:bg-green-500 dark:hover:bg-green-400">
+                บันทึกโควต้า
+            </button>
         </div>
-
-        <div>
-            <label class="block mb-1 font-medium text-slate-700 dark:text-slate-200">ปี</label>
-            <input type="number" name="year" value="{{ year }}"
-                   class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50">
-        </div>
-    </div>
-
-    <div class="mt-4">
-        <button type="submit"
-                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400">
-            โหลดข้อมูล
-        </button>
-    </div>
-</form>
-
-{% if selected_employee %}
-<h2 class="text-lg font-semibold mb-2">
-    โควต้าวันลาของ {{ selected_employee.employee_code }} -
-    {{ selected_employee.user.get_full_name|default:selected_employee.user.username }}
-    (ปี {{ year }})
-</h2>
-
-<form method="post" class="rounded-2xl border border-slate-100 bg-white/80 p-4 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
-    {% csrf_token %}
-    {{ formset.management_form }}
-
-    {% if formset.non_form_errors %}
-    <div class="mb-2 text-xs text-rose-500">
-        {{ formset.non_form_errors }}
-    </div>
+    </form>
     {% endif %}
-    
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 dark:bg-slate-800/70">
-            <tr>
-                <th class="text-left py-2 px-3">ประเภทการลา</th>
-                <th class="text-left px-3">สิทธิ์ทั้งหมด</th>
-                <th class="text-left px-3">ใช้ไปแล้ว</th>
-                <th class="text-left px-3">คงเหลือ</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for form in formset %}
-            <tr class="border-t border-slate-100 dark:border-slate-800">
-                <td class="py-2 px-3">
-                    {{ form.instance.leave_type.name }}
-                    {{ form.id }}
-                </td>
-                <td class="px-3 py-1">
-                    {{ form.allocated|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
-                </td>
-                <td class="px-3">
-                    {{ form.used|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
-                </td>
-                <td class="px-3">
-                    {{ form.instance.remaining }}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
-    <div class="mt-4 flex justify-end">
-        <button type="submit"
-                class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-500 dark:bg-green-500 dark:hover:bg-green-400">
-            บันทึกโควต้า
-        </button>
-    </div>
-</form>
-{% endif %}
+</div>
 {% endblock %}

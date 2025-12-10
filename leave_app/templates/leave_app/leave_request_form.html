@@ -3,95 +3,133 @@
 {% block title %}New Leave Request{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-    <div>
-        <h1 class="text-2xl font-semibold tracking-tight">ขออนุมัติลางาน</h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400">
-            กรอกรายละเอียดคำขอลาให้ครบถ้วนก่อนส่ง
-        </p>
+<div class="mx-auto">
+
+    <!-- header + back -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold tracking-tight">ขออนุมัติลางาน</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+                กรอกรายละเอียดคำขอลาให้ครบถ้วนก่อนส่ง
+            </p>
+        </div>
+
+        <!-- ปุ่มกลับ -->
+        <a href="{% url 'leave_app:leave_request_list' %}"
+           class="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+            ← กลับ
+        </a>
+    </div>
+
+    <!-- form -->
+    <div class="flex justify-center">
+        <form method="post" enctype="multipart/form-data"
+              class="w-full max-w-lg rounded-2xl border border-slate-100 bg-white/80 p-6 shadow-sm
+                     dark:border-slate-800 dark:bg-slate-900/70">
+            {% csrf_token %}
+
+            <!-- ประเภทการลา -->
+            <div class="mb-4">
+                <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    ประเภทการลา
+                </label>
+                {{ form.leave_type|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
+
+                {% if form.leave_type.errors %}
+                <p class="mt-1 text-xs text-rose-500">{{ form.leave_type.errors.0 }}</p>
+                {% endif %}
+
+                <div class="mt-2 space-y-1 text-xs text-slate-500">
+                {% for b in balances %}
+                    <div data-leave-type="{{ b.leave_type.id }}" class="hidden leave-hint">
+                        เหลือ {{ b.remaining }} วัน
+                        {% if not b.leave_type.is_paid %}
+                        (ไม่จำกัด)
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+
+            <!-- วันที่ -->
+            <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                        วันที่เริ่ม
+                    </label>
+                    {{ form.start_date|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
+                </div>
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                        วันที่สิ้นสุด
+                    </label>
+                    {{ form.end_date|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
+                </div>
+            </div>
+
+            <!-- แนบไฟล์ -->
+            <div class="mb-4">
+                <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    แนบเอกสารประกอบ (ถ้ามี)
+                </label>
+                {{ form.attachment|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-medium dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50 dark:file:bg-slate-800 dark:file:text-slate-100"}}
+            </div>
+
+            <!-- ครึ่งวัน -->
+            <div class="mb-4 flex items-center gap-2">
+                {{ form.half_day|add_class:"h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900/70" }}
+                <span class="text-sm text-slate-700 dark:text-slate-200">ลาครึ่งวัน</span>
+            </div>
+
+            <!-- เหตุผล -->
+            <div class="mb-4">
+                <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    เหตุผล
+                </label>
+                {{ form.reason|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="mb-4 text-sm text-rose-500">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <!-- actions -->
+            <div class="flex justify-end gap-2">
+                <a href="{% url 'leave_app:leave_request_list' %}"
+                   class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800
+                          hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
+                    ยกเลิก
+                </a>
+                <button type="submit"
+                        class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white
+                               shadow-sm hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                    ส่งคำขอ
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<form method="post" enctype="multipart/form-data"
-    class="max-w-lg rounded-2xl border border-slate-100 bg-white/80 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
-    {% csrf_token %}
+<!-- hint script -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const select = document.querySelector("select[name='leave_type']");
+    const hints = document.querySelectorAll(".leave-hint");
 
-    <!-- ประเภทการลา -->
-    <div class="mb-4">
-        <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-            ประเภทการลา
-        </label>
-        {{ form.leave_type|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
-        {% if form.leave_type.errors %}
-        <p class="mt-1 text-xs text-rose-500">{{ form.leave_type.errors.0 }}</p>
-        {% endif %}
-    </div>
+    function updateHint() {
+        hints.forEach(h => h.classList.add("hidden"));
+        const active = document.querySelector(
+            `.leave-hint[data-leave-type="${select.value}"]`
+        );
+        if (active) active.classList.remove("hidden");
+    }
 
-    <!-- วันที่เริ่ม / วันที่สิ้นสุด -->
-    <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-            <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-                วันที่เริ่ม
-            </label>
-            {{ form.start_date|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
-            {% if form.start_date.errors %}
-            <p class="mt-1 text-xs text-rose-500">{{ form.start_date.errors.0 }}</p>
-            {% endif %}
-        </div>
-        <div>
-            <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-                วันที่สิ้นสุด
-            </label>
-            {{ form.end_date|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
-            {% if form.end_date.errors %}
-            <p class="mt-1 text-xs text-rose-500">{{ form.end_date.errors.0 }}</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- แนบไฟล์ -->
-    <div class="mb-4">
-        <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-            แนบเอกสารประกอบ (ถ้ามี)
-        </label>
-        {{ form.attachment|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-medium dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50 dark:file:bg-slate-800 dark:file:text-slate-100"}}
-        {% if form.attachment.errors %}
-        <p class="mt-1 text-xs text-rose-500">{{ form.attachment.errors.0 }}</p>
-        {% endif %}
-    </div>
-
-    <!-- ครึ่งวัน -->
-    <div class="mb-4 flex items-center gap-2">
-        {{ form.half_day|add_class:"h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900/70" }}
-        <span class="text-sm text-slate-700 dark:text-slate-200">ลาครึ่งวัน</span>
-    </div>
-
-    <!-- เหตุผล -->
-    <div class="mb-4">
-        <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-            เหตุผล
-        </label>
-        {{ form.reason|add_class:"w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-50" }}
-        {% if form.reason.errors %}
-        <p class="mt-1 text-xs text-rose-500">{{ form.reason.errors.0 }}</p>
-        {% endif %}
-    </div>
-
-    {% if form.non_field_errors %}
-    <div class="mb-4 text-sm text-rose-500">
-        {{ form.non_field_errors }}
-    </div>
-    {% endif %}
-
-    <div class="flex justify-end gap-2">
-        <a href="{% url 'leave_app:leave_request_list' %}"
-            class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
-            ยกเลิก
-        </a>
-        <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm
-                       hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
-            ส่งคำขอ
-        </button>
-    </div>
-</form>
+    if (select) {
+        updateHint();
+        select.addEventListener("change", updateHint);
+    }
+});
+</script>
 {% endblock %}

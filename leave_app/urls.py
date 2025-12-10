@@ -6,13 +6,17 @@ app_name = "leave_app"
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
 
+    # Employee
     path("my-leaves/", views.leave_request_list, name="leave_request_list"),
     path("my-leaves/new/", views.leave_request_create, name="leave_request_create"),
     path("my-leaves/<int:pk>/cancel/", views.leave_request_cancel, name="leave_request_cancel"),
+    path("my-leaves/summary/", views.my_leaves, name="my_leaves"),
 
+    # Manager
     path("manager/leaves/", views.manager_leave_list, name="manager_leave_list"),
     path("manager/leaves/<int:pk>/", views.manager_leave_detail, name="manager_leave_detail"),
 
+    #  HR
     path("hr/leaves/", views.hr_leave_dashboard, name="hr_leave_dashboard"),
     path("hr/leaves/export/csv/", views.hr_export_leaves_csv, name="hr_export_leaves_csv"),
     path("hr/leaves/export/excel/", views.hr_export_leaves_excel, name="hr_export_leaves_excel"),
@@ -25,8 +29,10 @@ urlpatterns = [
 
     path("hr/balances/", views.hr_leave_balance_manage, name="hr_leave_balance_manage"),
 
+    #  CEO
     path("ceo/dashboard/", views.ceo_dashboard, name="ceo_dashboard"),
 
+    # Auth
     path("accounts/register/", views.register, name="register"),
     path("accounts/logout/", views.logout_view, name="logout"),
 

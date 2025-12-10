@@ -249,3 +249,15 @@ def notify_leave_status_changed(leave_request: LeaveRequest):
         f"หมายเหตุหัวหน้า: {leave_request.approve_comment or '-'}\n"
     )
     _send_leave_email(subject, message, [user.email])
+    
+def get_employee_leave_balances(employee_profile, year=None):
+    if year is None:
+        year = timezone.now().year
+
+    balances = (
+        LeaveBalance.objects
+        .select_related("leave_type")
+        .filter(employee=employee_profile, year=year)
+    )
+
+    return balances

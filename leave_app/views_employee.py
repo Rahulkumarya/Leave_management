@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from .forms import LeaveRequestForm
 from .models import EmployeeProfile, LeaveBalance, LeaveRequest
-from .services import notify_leave_submitted
+from .services import notify_leave_submitted, get_employee_leave_balances
 
 
 @login_required
@@ -37,23 +37,32 @@ def leave_request_list(request):
 
 @login_required
 def leave_request_create(request):
-    profile = get_object_or_404(EmployeeProfile, user=request.user)
+    employee = request.user.employeeprofile
+    balances = get_employee_leave_balances(employee)
 
     if request.method == "POST":
-        form = LeaveRequestForm(request.POST, request.FILES, employee_profile=profile)
+        form = LeaveRequestForm(
+            request.POST,
+            request.FILES,
+            employee_profile=employee,
+        )
         if form.is_valid():
-            leave_req = form.save(commit=False)
-            leave_req.employee = profile
-            leave_req.save()
-
-            notify_leave_submitted(leave_req)
-
-            messages.success(request, "ส่งคำขอลางานเรียบร้อยแล้ว")
-            return redirect("leave_app:leave_request_list")
+            leave = form.save(commit=False)
+            leave.employee = employee
+            leave.save()
+            messages.success(request, "ส่งคำขอลาเรียบร้อยแล้ว")
+            return redirect("leave_app:my_leaves")
     else:
-        form = LeaveRequestForm(employee_profile=profile)
+        form = LeaveRequestForm(employee_profile=employee)
 
-    return render(request, "leave_app/leave_request_form.html", {"form": form})
+    return render(
+        request,
+        "leave_app/leave_request_form.html",
+        {
+            "form": form,
+            "balances": balances,
+        },
+    )
 
 
 @login_required
@@ -70,3 +79,20 @@ def leave_request_cancel(request, pk):
     leave_req.save()
     messages.success(request, "ยกเลิกคำขอลาเรียบร้อยแล้ว")
     return redirect("leave_app:leave_request_list")
+
+@login_required
+def my_leaves(request):
+    employee = request.user.employeeprofile
+    current_year = timezone.now().year
+
+    balances = get_employee_leave_balances(employee, year=current_year)
+
+    return render(
+        request,
+        "leave_app/my_leaves.html",
+        {
+            "employee": employee,
+            "balances": balances,
+            "current_year": current_year,
+        },
+    )
