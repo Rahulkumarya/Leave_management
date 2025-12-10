@@ -17,7 +17,7 @@
              dark:bg-slate-950 dark:text-slate-50">
 
     <nav class="bg-white/80 backdrop-blur border-b border-slate-200
-               dark:bg-slate-900/80 dark:border-slate-800">
+           dark:bg-slate-900/80 dark:border-slate-800">
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <a href="{% url 'leave_app:dashboard' %}"
                 class="font-semibold text-lg tracking-tight text-slate-900 dark:text-slate-50">
@@ -61,8 +61,8 @@
                 <span class="hidden sm:inline text-xs text-slate-500 dark:text-slate-400">
                     {{ user.username }}
                 </span>
+                {% endif %}
 
-                <!-- Theme toggle -->
                 <div class="flex items-center">
                     <div class="scale-75 origin-center">
                         <label class="switch">
@@ -78,7 +78,6 @@
                                     <svg id="moon-dot-3" class="moon-dot" viewBox="0 0 100 100">
                                         <circle cx="50" cy="50" r="50"></circle>
                                     </svg>
-    
                                     <svg id="light-ray-1" class="light-ray" viewBox="0 0 100 100">
                                         <circle cx="50" cy="50" r="50"></circle>
                                     </svg>
@@ -88,7 +87,6 @@
                                     <svg id="light-ray-3" class="light-ray" viewBox="0 0 100 100">
                                         <circle cx="50" cy="50" r="50"></circle>
                                     </svg>
-    
                                     <svg id="cloud-1" class="cloud-dark" viewBox="0 0 100 100">
                                         <circle cx="50" cy="50" r="50"></circle>
                                     </svg>
@@ -98,7 +96,6 @@
                                     <svg id="cloud-3" class="cloud-dark" viewBox="0 0 100 100">
                                         <circle cx="50" cy="50" r="50"></circle>
                                     </svg>
-    
                                     <svg id="cloud-4" class="cloud-light" viewBox="0 0 100 100">
                                         <circle cx="50" cy="50" r="50"></circle>
                                     </svg>
@@ -109,7 +106,7 @@
                                         <circle cx="50" cy="50" r="50"></circle>
                                     </svg>
                                 </div>
-    
+
                                 <div class="stars">
                                     <svg id="star-1" class="star" viewBox="0 0 20 20">
                                         <path
@@ -137,18 +134,11 @@
                     </div>
                 </div>
 
+                {% if user.is_authenticated %}
                 <a href="{% url 'logout' %}" class="text-red-500 hover:text-red-600">
                     Logout
                 </a>
                 {% else %}
-
-                <button id="theme-toggle" type="button" class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-xs
-                               text-slate-600 bg-white/70 hover:bg-slate-50
-                               dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700">
-                    <span class="theme-label-light">☀ Light</span>
-                    <span class="theme-label-dark hidden">🌙 Dark</span>
-                </button>
-
                 <a href="{% url 'login' %}"
                     class="text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200">
                     Login

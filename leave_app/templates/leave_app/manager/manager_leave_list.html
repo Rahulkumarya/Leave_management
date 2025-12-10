@@ -93,7 +93,7 @@
           {% elif leave.status == 'PENDING' %}
               bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200
           {% elif leave.status == 'CANCELLED' %}
-              bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-100
+              bg-slate-100 text-slate-800 dark:bg-slate-800/70 dark:text-slate-200
           {% endif %}
         ">
           {{ leave.get_status_display }}
