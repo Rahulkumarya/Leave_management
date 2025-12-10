@@ -22,105 +22,108 @@
     </div>
 </div>
 
-<form method="post" class="max-w-2xl rounded-2xl border border-slate-100 bg-white/80 p-6 shadow-sm
-             dark:border-slate-800 dark:bg-slate-900/70">
-    {% csrf_token %}
+<!-- card wrapper เหมือนเดิม -->
+<div class="max-w-2xl rounded-2xl border border-slate-100 bg-white/80 p-6 shadow-sm
+            dark:border-slate-800 dark:bg-slate-900/70">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div>
-            <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-                {{ form.first_name.label }}
-            </label>
-            {{ form.first_name|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
+    <!-- ฟอร์มหลักสำหรับแก้ไขข้อมูลพนักงาน -->
+    <form method="post" id="employee-form">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {{ form.first_name.label }}
+                </label>
+                {{ form.first_name|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
+            </div>
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {{ form.last_name.label }}
+                </label>
+                {{ form.last_name|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
+            </div>
         </div>
-        <div>
+
+        <div class="mb-4">
             <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-                {{ form.last_name.label }}
+                {{ form.email.label }}
             </label>
-            {{ form.last_name|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
+            {{ form.email|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
         </div>
-    </div>
 
-    <div class="mb-4">
-        <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-            {{ form.email.label }}
-        </label>
-        {{ form.email|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
-    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {{ form.employee_code.label }}
+                </label>
+                {{ form.employee_code|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
+            </div>
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {{ form.join_date.label }}
+                </label>
+                {{ form.join_date|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
+            </div>
+        </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div>
-            <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-                {{ form.employee_code.label }}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {{ form.department.label }}
+                </label>
+                {{ form.department|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
+            </div>
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {{ form.manager.label }}
+                </label>
+                {{ form.manager|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
+            </div>
+        </div>
+
+        <div class="mb-4 flex items-center gap-2">
+            {{ form.is_active }}
+            <label class="text-sm font-medium text-slate-700 dark:text-slate-200">
+                {{ form.is_active.label }}
             </label>
-            {{ form.employee_code|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
         </div>
-        <div>
-            <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-                {{ form.join_date.label }}
-            </label>
-            {{ form.join_date|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
+
+        {% if form.non_field_errors %}
+        <div class="mb-3 text-sm text-rose-500">
+            {{ form.non_field_errors }}
         </div>
-    </div>
+        {% endif %}
+    </form>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div>
-            <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-                {{ form.department.label }}
-            </label>
-            {{ form.department|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
-        </div>
-        <div>
-            <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-                {{ form.manager.label }}
-            </label>
-            {{ form.manager|add_class:"w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 dark:bg-slate-900/70 dark:border-slate-700 dark:text-slate-50" }}
-        </div>
-    </div>
-
-    <div class="mb-4 flex items-center gap-2">
-        {{ form.is_active }}
-        <label class="text-sm font-medium text-slate-700 dark:text-slate-200">
-            {{ form.is_active.label }}
-        </label>
-    </div>
-
-    {% if form.non_field_errors %}
-    <div class="mb-3 text-sm text-rose-500">
-        {{ form.non_field_errors }}
-    </div>
-    {% endif %}
-
+    <!-- แถวปุ่ม: รูปแบบเหมือนเดิม แต่ไม่ซ้อนฟอร์ม -->
     <div class="mt-4 flex flex-wrap gap-2 justify-between">
+        <!-- ปุ่ม submit ฟอร์มหลัก ใช้ form="employee-form" -->
         <div class="flex gap-2">
-            <button type="submit" name="save" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm
-                           hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400
-                           dark:bg-indigo-500 dark:hover:bg-indigo-400">
+            <button type="submit" form="employee-form" name="save" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-indigo-500 dark:hover:bg-indigo-400">
                 บันทึกและกลับไปหน้ารายชื่อ
             </button>
-            <button type="submit" name="stay" value="1" class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800
-                           hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
+            <button type="submit" form="employee-form" name="stay" value="1" class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
                 บันทึกและอยู่หน้านี้
             </button>
         </div>
 
+        <!-- ฟอร์มแยก สำหรับ toggle active -->
         <form method="post" action="{% url 'leave_app:hr_employee_toggle_active' profile.pk %}" class="ml-auto"
             onsubmit="return confirm('ต้องการสลับสถานะการใช้งานของผู้ใช้นี้หรือไม่?');">
             {% csrf_token %}
             {% if user_obj.is_active %}
-            <button type="submit" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm
-                           hover:bg-rose-500 dark:bg-rose-500 dark:hover:bg-rose-400">
+            <button type="submit" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-rose-500 dark:bg-rose-500 dark:hover:bg-rose-400">
                 ปิดการใช้งานบัญชี
             </button>
             {% else %}
-            <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm
-                           hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400">
+            <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400">
                 เปิดใช้งานบัญชี
             </button>
             {% endif %}
         </form>
     </div>
-</form>
+</div>
 
 <div class="mt-6">
     <a href="{% url 'leave_app:hr_employee_list' %}"
