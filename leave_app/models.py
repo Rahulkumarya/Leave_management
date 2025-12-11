@@ -1,3 +1,6 @@
+import os
+import uuid
+from django.utils import timezone
 from django.conf import settings
 from django.db import models
 
@@ -65,6 +68,23 @@ class Holiday(models.Model):
     def __str__(self):
         return f"{self.date} - {self.name}"
 
+def leave_attachment_upload_to(instance, filename):
+    _, ext = os.path.splitext(filename)
+    ext = ext.lower()
+    
+    employee_code = "unknown"
+    if instance.employee_id and getattr(instance.employee, "employee_code", None):
+        employee_code = instance.employee.employee_code
+
+    if instance.start_date:
+        date_str = instance.start_date.strftime("%Y%m%d")
+    else:
+        date_str = timezone.now().strftime("%Y%m%d")
+        
+    random_suffix = uuid.uuid4().hex[:12]
+    
+    # รูปแบบ path:leave_attachments/<employee_code>/<YYYYMMDD>_<random>.ext 
+    return f"leave_attachments/{employee_code}/{date_str}_{random_suffix}{ext}"
 
 class LeaveRequest(models.Model):
     STATUS_PENDING = "PENDING"
@@ -85,7 +105,12 @@ class LeaveRequest(models.Model):
     end_date = models.DateField()
     half_day = models.BooleanField(default=False)
     reason = models.TextField()
-    attachment = models.FileField(upload_to="leave_attachments/", null=True, blank=True)
+    attachment = models.FileField(
+        upload_to=leave_attachment_upload_to,
+        null=True,
+        blank=True,
+    )
+
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
 
     approver = models.ForeignKey(
