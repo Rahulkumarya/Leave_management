@@ -2,21 +2,21 @@
 {% block title %}Manager - Pending Leaves{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-semibold tracking-tight mb-2">คำขอลาที่รออนุมัติ</h1>
+<h1 class="text-2xl font-semibold tracking-tight mb-2">Pending Leave Requests</h1>
 <p class="mb-4 text-sm text-slate-500 dark:text-slate-400">
-  แสดงเฉพาะคำขอของลูกน้องที่อยู่ภายใต้คุณ และยังอยู่ในสถานะ Pending
+  Displays only leave requests from your subordinates that are currently in Pending status
 </p>
 
-<!-- 🔹 ตารางคำขอที่รออนุมัติ -->
+<!-- 🔹 Pending Leave Table -->
 <table class="w-full text-sm rounded-2xl border border-slate-100 bg-white/80 shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-900/70 ">
   <thead class="bg-slate-50 text-slate-700 dark:bg-slate-800/70 dark:text-slate-100">
     <tr>
-      <th class="text-left py-2 px-3">พนักงาน</th>
-      <th class="text-left px-3">ประเภท</th>
-      <th class="text-left px-3">ช่วงเวลา</th>
-      <th class="text-left px-3">ไฟล์แนบ</th>
-      <th class="text-left px-3">เหตุผล</th>
-      <th class="text-left px-3">จัดการ</th>
+      <th class="text-left py-2 px-3">Employee</th>
+      <th class="text-left px-3">Leave Type</th>
+      <th class="text-left px-3">Duration</th>
+      <th class="text-left px-3">Attachment</th>
+      <th class="text-left px-3">Reason</th>
+      <th class="text-left px-3">Action</th>
     </tr>
   </thead>
   <tbody>
@@ -29,14 +29,14 @@
       <td class="px-3">
         {{ leave.start_date }} - {{ leave.end_date }}
         {% if leave.half_day %}
-          <span class="ml-1 text-xs text-indigo-600 dark:text-indigo-400">(ครึ่งวัน)</span>
+          <span class="ml-1 text-xs text-indigo-600 dark:text-indigo-400">(Half Day)</span>
         {% endif %}
       </td>
       <td class="px-3">
           {% if leave.attachment %}
               <a href="{{ leave.attachment.url }}" target="_blank"
               class="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-300">
-                  ดูไฟล์
+                  View File
               </a>
           {% else %}
               <span class="text-xs text-slate-400 dark:text-slate-500">-</span>
@@ -48,38 +48,38 @@
       <td class="px-3">
         <a href="{% url 'leave_app:manager_leave_detail' leave.pk %}"
           class="text-xs font-medium text-blue-600 hover:text-blue-500">
-          ดูรายละเอียด
+          View Details
         </a>
       </td>
     </tr>
     {% empty %}
     <tr>
       <td colspan="5" class="py-3 text-center text-slate-500 dark:text-slate-400">
-        ยังไม่มีคำขอที่รออนุมัติ
+        No pending leave requests
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 
-<!-- 🔹 ประวัติคำขอลาของลูกน้อง -->
+<!-- 🔹 Leave Request History -->
 <h2 class="mt-8 mb-2 text-xl font-semibold tracking-tight">
-  ประวัติคำขอลา
+  Leave Request History
 </h2>
 <p class="mb-4 text-sm text-slate-500 dark:text-slate-400">
-  แสดงคำขอของลูกน้องที่ถูกอนุมัติ / ปฏิเสธ / ยกเลิก แล้ว
+  Displays leave requests from your subordinates that have been approved / rejected / cancelled
 </p>
 
 <table class="w-full text-sm rounded-2xl border border-slate-100 bg-white/80 shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-900/70 ">
   <thead class="bg-slate-50 text-slate-700 dark:bg-slate-800/70 dark:text-slate-100">
     <tr>
-      <th class="text-left py-2 px-3">พนักงาน</th>
-      <th class="text-left px-3">ประเภท</th>
-      <th class="text-left px-3">ช่วงเวลา</th>
-      <th class="text-left px-3">สถานะ</th>
-      <th class="text-left px-3">ผู้พิจารณา</th>
-      <th class="text-left px-3">อัปเดตล่าสุด</th>
-      <th class="text-left px-3">หมายเหตุหัวหน้า</th>
+      <th class="text-left py-2 px-3">Employee</th>
+      <th class="text-left px-3">Leave Type</th>
+      <th class="text-left px-3">Duration</th>
+      <th class="text-left px-3">Status</th>
+      <th class="text-left px-3">Reviewed By</th>
+      <th class="text-left px-3">Last Updated</th>
+      <th class="text-left px-3">Manager Comment</th>
     </tr>
   </thead>
   <tbody>
@@ -92,7 +92,7 @@
       <td class="px-3">
         {{ leave.start_date }} - {{ leave.end_date }}
         {% if leave.half_day %}
-          <span class="ml-1 text-xs text-indigo-600 dark:text-indigo-400">(ครึ่งวัน)</span>
+          <span class="ml-1 text-xs text-indigo-600 dark:text-indigo-400">(Half Day)</span>
         {% endif %}
       </td>
       <td class="px-3">
@@ -127,7 +127,7 @@
     {% empty %}
     <tr>
       <td colspan="7" class="py-3 text-center text-slate-500 dark:text-slate-400">
-        ยังไม่มีประวัติคำขอลา
+        No leave request history
       </td>
     </tr>
     {% endfor %}

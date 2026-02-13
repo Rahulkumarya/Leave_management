@@ -4,18 +4,18 @@
 {% block content %}
 <div class="flex items-center justify-between mb-6">
     <div>
-        <h1 class="text-2xl font-semibold tracking-tight">คำขอลางานของฉัน</h1>
+        <h1 class="text-2xl font-semibold tracking-tight">My Leave Requests</h1>
         <p class="text-sm text-slate-500 dark:text-slate-400">
-            ดูสถานะคำขอลาทั้งหมด และยกเลิกคำขอที่ยัง Pending ได้
+            View all leave request statuses and cancel requests that are still pending
         </p>
     </div>
     <div class="flex items-center gap-2">
         <a href="{% url 'leave_app:my_leaves' %}" class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800
                 shadow-sm hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
-            ข้อมูลส่วนตัว & วันลาคงเหลือ
+            Personal Information & Remaining Leave Balance
         </a>
         <a href="{% url 'leave_app:leave_request_create' %}" class="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
-            + ขออนุมัติลางาน
+            + Request Leave Approval
         </a>
     </div>
 </div>
@@ -24,11 +24,11 @@
                dark:border-slate-800 dark:bg-slate-900/70">
     <thead class="bg-slate-50 text-slate-700 dark:bg-slate-800/70 dark:text-slate-100">
         <tr>
-            <th class="text-left py-2 px-3">ประเภท</th>
-            <th class="text-left px-3">ช่วงเวลา</th>
-            <th class="text-left px-3">ไฟล์แนบ</th>
-            <th class="text-left px-3">สถานะ</th>
-            <th class="text-left px-3">จัดการ</th>
+            <th class="text-left py-2 px-3">Type</th>
+            <th class="text-left px-3">Date Range</th>
+            <th class="text-left px-3">Attachment</th>
+            <th class="text-left px-3">Status</th>
+            <th class="text-left px-3">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -44,7 +44,7 @@
                 {% if leave.attachment %}
                     <a href="{{ leave.attachment.url }}" target="_blank"
                     class="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-300">
-                        ดูไฟล์
+                        View File
                     </a>
                 {% else %}
                     <span class="text-xs text-slate-400 dark:text-slate-500">-</span>
@@ -69,7 +69,7 @@
                 {% if leave.status == "PENDING" %}
                 <a href="{% url 'leave_app:leave_request_cancel' leave.pk %}"
                    class="text-xs font-medium text-rose-500 hover:text-rose-400">
-                    ยกเลิก
+                    Cancel
                 </a>
                 {% else %}
                 <span class="text-xs text-slate-400 dark:text-slate-500">
@@ -81,7 +81,7 @@
         {% empty %}
         <tr>
             <td colspan="4" class="py-3 text-center text-slate-500 dark:text-slate-400">
-                ยังไม่มีคำขอลางาน
+                No leave requests found
             </td>
         </tr>
         {% endfor %}

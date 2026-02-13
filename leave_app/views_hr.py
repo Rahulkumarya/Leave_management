@@ -84,7 +84,10 @@ def hr_employee_create(request):
 
             create_default_leave_balances(profile)
 
-            messages.success(request, f"สร้างพนักงาน {profile} เรียบร้อยแล้ว")
+            messages.success(
+                request, f"Employee {profile} has been created successfully"
+            )
+
             return redirect("leave_app:hr_employee_list")
     else:
         form = HREmployeeCreateForm()
@@ -142,7 +145,7 @@ def hr_employee_edit(request, pk):
         form = HREmployeeUpdateForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
-            messages.success(request, "อัปเดตข้อมูลพนักงานเรียบร้อยแล้ว")
+            messages.success(request, "Employee information updated successfully")
             if "stay" in request.POST:
                 return redirect("leave_app:hr_employee_edit", pk=pk)
             return redirect("leave_app:hr_employee_list")
@@ -165,7 +168,8 @@ def hr_employee_toggle_active(request, pk):
         user.is_active = not user.is_active
         user.save()
         
-        # ถ้าปิดการใช้งาน → เคลียร์ทุก session ของ user นี้
+        # If deactivated → clear all sessions of this user
+
         if not user.is_active:
             sessions = Session.objects.filter(expire_date__gte=timezone.now())
             for s in sessions:
@@ -173,8 +177,10 @@ def hr_employee_toggle_active(request, pk):
                 if data.get("_auth_user_id") == str(user.id):
                     s.delete()
         
-        status = "เปิดใช้งาน" if user.is_active else "ปิดการใช้งาน"
-        messages.success(request, f"{status}บัญชีผู้ใช้เรียบร้อยแล้ว")
+        status = "Activated" if user.is_active else "Deactivated"
+
+        messages.success(request, f"User account {status.lower()} successfully")
+
     return redirect("leave_app:hr_employee_edit", pk=pk)
 
 
@@ -189,7 +195,7 @@ def hr_employee_import(request):
             except BadZipFile:
                 messages.error(
                     request,
-                    "ไฟล์นี้ไม่ใช่ Excel .xlsx กรุณาส่งออกเป็น .xlsx แล้วลองใหม่อีกครั้ง",
+                    "This file is not a valid Excel (.xlsx). Please export as .xlsx and try again.",
                 )
                 return redirect("leave_app:hr_employee_import")
 
@@ -233,7 +239,10 @@ def hr_employee_import(request):
                 create_default_leave_balances(profile)
                 created_count += 1
 
-            messages.success(request, f"นำเข้าพนักงานสำเร็จ {created_count} รายการ")
+            messages.success(
+                request, f"Successfully imported {created_count} employees"
+            )
+
             return redirect("leave_app:hr_employee_list")
     else:
         form = EmployeeImportForm()
@@ -273,11 +282,14 @@ def hr_leave_balance_manage(request):
             formset = LeaveBalanceFormSet(request.POST, queryset=qs)
             if formset.is_valid():
                 formset.save()
-                messages.success(request, "อัปเดตโควต้าวันลาเรียบร้อยแล้ว")
+                messages.success(request, "Leave balance updated successfully")
                 url = reverse("leave_app:hr_leave_balance_manage")
                 return redirect(f"{url}?employee={employee_id}&year={year}")
             else:
-                messages.error(request, "กรุณาตรวจสอบข้อมูลโควต้าวันลาอีกครั้ง")
+                messages.error(
+                    request, "Please review the leave balance information again"
+                )
+
         else:
             formset = LeaveBalanceFormSet(queryset=qs)
 

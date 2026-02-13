@@ -50,7 +50,7 @@ def leave_request_create(request):
             leave = form.save(commit=False)
             leave.employee = employee
             leave.save()
-            messages.success(request, "ส่งคำขอลาเรียบร้อยแล้ว")
+            messages.success(request, "Leave request submitted successfully")
             return redirect("leave_app:leave_request_list")
     else:
         form = LeaveRequestForm(employee_profile=employee)
@@ -71,14 +71,15 @@ def leave_request_cancel(request, pk):
     leave_req = get_object_or_404(LeaveRequest, pk=pk, employee=profile)
 
     if leave_req.status != LeaveRequest.STATUS_PENDING:
-        messages.error(request, "ยกเลิกได้เฉพาะคำขอที่ยัง Pending เท่านั้น")
+        messages.error(request, "Only pending requests can be cancelled")
         return redirect("leave_app:leave_request_list")
 
     leave_req.status = LeaveRequest.STATUS_CANCELLED
     leave_req.cancelled_at = timezone.now()
     leave_req.save()
-    messages.success(request, "ยกเลิกคำขอลาเรียบร้อยแล้ว")
+    messages.success(request, "Leave request cancelled successfully")
     return redirect("leave_app:leave_request_list")
+
 
 @login_required
 def my_leaves(request):

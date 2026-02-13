@@ -5,17 +5,18 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 class HREmployeeCreateForm(forms.Form):
     username = forms.CharField(label="Username", max_length=150)
     password = forms.CharField(label="Password", widget=forms.PasswordInput)
-    employee_code = forms.CharField(label="รหัสพนักงาน", max_length=20)
+    employee_code = forms.CharField(label="Employee Code", max_length=20)
     department = forms.ModelChoiceField(
-        label="แผนก",
+        label="Department",
         queryset=Department.objects.all(),
         required=False,
     )
     manager = forms.ModelChoiceField(
-        label="หัวหน้า (ถ้ามี)",
+        label="Manager (if any)",
         queryset=User.objects.all(),
         required=False,
     )
@@ -23,14 +24,22 @@ class HREmployeeCreateForm(forms.Form):
 
 class EmployeeImportForm(forms.Form):
     file = forms.FileField(
-        label="ไฟล์ Excel (.xlsx)",
-        help_text="ไฟล์ต้องเป็น .xlsx หัวตารางแถวแรก"
+        label="Excel File (.xlsx)",
+        help_text="File must be .xlsx format with header row in the first row",
     )
+
 
 class LeaveRequestForm(forms.ModelForm):
     class Meta:
         model = LeaveRequest
-        fields = ["leave_type", "start_date", "end_date", "half_day", "reason", "attachment"]
+        fields = [
+            "leave_type",
+            "start_date",
+            "end_date",
+            "half_day",
+            "reason",
+            "attachment",
+        ]
         widgets = {
             "start_date": forms.DateInput(
                 attrs={"type": "date", "class": "border p-2 rounded w-full"}
@@ -47,7 +56,7 @@ class LeaveRequestForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # เราส่ง employee_profile มาจาก view
+        # employee_profile is passed from the view
         self.employee_profile = kwargs.pop("employee_profile", None)
         super().__init__(*args, **kwargs)
 
@@ -68,9 +77,11 @@ class LeaveRequestForm(forms.ModelForm):
         half_day = cleaned.get("half_day")
         attachment = cleaned.get("attachment")
 
-        # ถ้า LeaveType นี้ require_attachment แต่ไม่ได้แนบไฟล์
+        # If this LeaveType requires attachment but no file uploaded
         if leave_type and leave_type.require_attachment and not attachment:
-            raise forms.ValidationError("ประเภทการลานี้ต้องแนบเอกสารประกอบ")
+            raise forms.ValidationError(
+                "This leave type requires a supporting document."
+            )
 
         if leave_type and start_date and end_date:
             validate_leave_request(
@@ -83,7 +94,8 @@ class LeaveRequestForm(forms.ModelForm):
             )
 
         return cleaned
-    
+
+
 class LeaveBalanceForm(forms.ModelForm):
     class Meta:
         model = LeaveBalance
@@ -97,48 +109,47 @@ class LeaveBalanceForm(forms.ModelForm):
             ),
         }
 
+
 class HREmployeeCreateForm(forms.Form):
     username = forms.CharField(label="Username", max_length=150)
     password = forms.CharField(label="Password", widget=forms.PasswordInput)
-    employee_code = forms.CharField(label="รหัสพนักงาน", max_length=20)
+    employee_code = forms.CharField(label="Employee Code", max_length=20)
     department = forms.ModelChoiceField(
-        label="แผนก",
+        label="Department",
         queryset=Department.objects.all(),
         required=False,
     )
     manager = forms.ModelChoiceField(
-        label="หัวหน้า (ถ้ามี)",
+        label="Manager (if any)",
         queryset=User.objects.all(),
         required=False,
     )
 
 
 class HREmployeeUpdateForm(forms.ModelForm):
-    # ฟิลด์จาก User
-    first_name = forms.CharField(label="ชื่อ", required=False)
-    last_name = forms.CharField(label="นามสกุล", required=False)
-    email = forms.EmailField(label="อีเมล", required=False)
-    is_active = forms.BooleanField(label="ใช้งานอยู่", required=False)
+    # Fields from User model
+    first_name = forms.CharField(label="First Name", required=False)
+    last_name = forms.CharField(label="Last Name", required=False)
+    email = forms.EmailField(label="Email", required=False)
+    is_active = forms.BooleanField(label="Active", required=False)
 
     class Meta:
         model = EmployeeProfile
         fields = ["employee_code", "department", "manager", "join_date"]
         labels = {
-            "employee_code": "รหัสพนักงาน",
-            "department": "แผนก",
-            "manager": "หัวหน้า",
-            "join_date": "วันที่เริ่มงาน",
+            "employee_code": "Employee Code",
+            "department": "Department",
+            "manager": "Manager",
+            "join_date": "Join Date",
         }
         widgets = {
-            "join_date": forms.DateInput(
-                attrs={"type": "date"}
-            ),
+            "join_date": forms.DateInput(attrs={"type": "date"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # ดึงค่าเริ่มต้นจาก user
+        # Load initial values from related user
         user = self.instance.user if self.instance and self.instance.pk else None
         if user:
             self.fields["first_name"].initial = user.first_name
@@ -164,15 +175,22 @@ class HREmployeeUpdateForm(forms.ModelForm):
 
 class EmployeeImportForm(forms.Form):
     file = forms.FileField(
-        label="ไฟล์ Excel (.xlsx)",
-        help_text="ไฟล์ต้องเป็น .xlsx หัวตารางแถวแรก"
+        label="Excel File (.xlsx)",
+        help_text="File must be .xlsx format with header row in the first row",
     )
 
 
 class LeaveRequestForm(forms.ModelForm):
     class Meta:
         model = LeaveRequest
-        fields = ["leave_type", "start_date", "end_date", "half_day", "reason", "attachment"]
+        fields = [
+            "leave_type",
+            "start_date",
+            "end_date",
+            "half_day",
+            "reason",
+            "attachment",
+        ]
         widgets = {
             "start_date": forms.DateInput(
                 attrs={"type": "date", "class": "border p-2 rounded w-full"}
@@ -210,7 +228,9 @@ class LeaveRequestForm(forms.ModelForm):
         attachment = cleaned.get("attachment")
 
         if leave_type and leave_type.require_attachment and not attachment:
-            raise forms.ValidationError("ประเภทการลานี้ต้องแนบเอกสารประกอบ")
+            raise forms.ValidationError(
+                "This leave type requires a supporting document."
+            )
 
         if leave_type and start_date and end_date:
             validate_leave_request(
@@ -237,14 +257,15 @@ class LeaveBalanceForm(forms.ModelForm):
             ),
         }
 
+
 class EmployeeImportForm(forms.Form):
     file = forms.FileField(
-        label="ไฟล์ Excel (.xlsx)",
-        help_text="ไฟล์ต้องเป็น .xlsx หัวตารางแถวแรก"
+        label="Excel File (.xlsx)",
+        help_text="File must be .xlsx format with header row in the first row",
     )
 
     def clean_file(self):
         f = self.cleaned_data["file"]
         if not f.name.lower().endswith(".xlsx"):
-            raise forms.ValidationError("ไฟล์ต้องเป็นนามสกุล .xlsx เท่านั้น")
+            raise forms.ValidationError("File must have .xlsx extension only.")
         return f

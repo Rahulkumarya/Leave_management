@@ -6,24 +6,24 @@
     <div>
         <h1 class="text-2xl font-semibold tracking-tight">CEO Dashboard</h1>
         <p class="text-sm text-slate-500 dark:text-slate-400">
-            ภาพรวมการลาทั้งบริษัท (ปี {{ year }})
+            Company-wide leave overview (Year {{ year }})
         </p>
     </div>
 
     <form method="get" class="flex items-center gap-2 text-sm">
-        <label class="text-slate-500 dark:text-slate-400">ปี:</label>
+        <label class="text-slate-500 dark:text-slate-400">Year:</label>
         <input type="number" name="year" value="{{ year }}"
                class="w-24 rounded-lg border border-slate-200 bg-white/80 px-2 py-1 text-sm
                       dark:border-slate-700 dark:bg-slate-900/70">
         <button type="submit"
                 class="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-medium text-white shadow-sm
                        hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
-            เปลี่ยนปี
+            Change Year
         </button>
     </form>
 </div>
 
-<!-- แถว KPI หลัก -->
+<!-- Main KPI Row -->
 <div class="grid grid-cols-1 gap-4 md:grid-cols-4 mb-4">
     <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
                 dark:border-slate-800 dark:bg-slate-900/70">
@@ -62,7 +62,7 @@
     </div>
 </div>
 
-<!-- KPI เพิ่มเติม: total / avg leave days -->
+<!-- Additional KPIs -->
 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mb-6">
     <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
                 dark:border-slate-800 dark:bg-slate-900/70">
@@ -73,7 +73,7 @@
             {{ total_leave_days|floatformat:1 }}
         </p>
         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            รวมจำนวนวันลาที่อนุมัติแล้วในปี {{ year }} (คิดเฉพาะวันทำงาน)
+            Total approved leave days in {{ year }} (working days only)
         </p>
     </div>
 
@@ -86,17 +86,17 @@
             {{ avg_leave_days_per_employee|floatformat:1 }}
         </p>
         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            ค่าเฉลี่ยวันลาต่อพนักงาน 1 คน (เฉพาะบัญชีที่ใช้งานอยู่)
+            Average leave days per active employee account
         </p>
     </div>
 </div>
 
-<!-- กราฟ -->
+<!-- Charts -->
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-6">
     <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
                 dark:border-slate-800 dark:bg-slate-900/70">
         <p class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-            จำนวนคำขอลาต่อเดือน (ปี {{ year }})
+            Monthly Leave Requests ({{ year }})
         </p>
         <canvas id="monthlyChart" class="w-full"></canvas>
     </div>
@@ -104,7 +104,7 @@
     <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
                 dark:border-slate-800 dark:bg-slate-900/70">
         <p class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-            จำนวนคำขอลาแบ่งตามแผนก
+            Leave Requests by Department
         </p>
         <canvas id="departmentChart" class="w-full"></canvas>
     </div>
@@ -112,7 +112,7 @@
     <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm lg:col-span-2
                 dark:border-slate-800 dark:bg-slate-900/70">
         <p class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-            สัดส่วนคำขอลาแบ่งตามประเภทการลา
+            Leave Requests by Leave Type
         </p>
         <div class="max-w-md mx-auto">
             <canvas id="typeChart" class="w-full"></canvas>
@@ -120,7 +120,7 @@
     </div>
 </div>
 
-<!-- ✅ Top Departments / Employees by Leave Days -->
+<!-- Top Departments / Employees -->
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-6">
     <!-- Top Departments -->
     <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
@@ -132,8 +132,8 @@
         <table class="w-full text-sm">
             <thead class="bg-slate-50 dark:bg-slate-800/70">
                 <tr>
-                    <th class="text-left py-2 px-3">แผนก</th>
-                    <th class="text-right px-3">วันลา (วันทำงาน)</th>
+                    <th class="text-left py-2 px-3">Department</th>
+                    <th class="text-right px-3">Leave Days (Working Days)</th>
                 </tr>
             </thead>
             <tbody>
@@ -149,7 +149,7 @@
                 {% empty %}
                 <tr>
                     <td colspan="2" class="py-3 text-center text-slate-500 dark:text-slate-400">
-                        ยังไม่มีข้อมูลวันลาที่อนุมัติ
+                        No approved leave day data available
                     </td>
                 </tr>
                 {% endfor %}
@@ -167,9 +167,9 @@
         <table class="w-full text-sm">
             <thead class="bg-slate-50 dark:bg-slate-800/70">
                 <tr>
-                    <th class="text-left py-2 px-3">พนักงาน</th>
-                    <th class="text-left px-3">แผนก</th>
-                    <th class="text-right px-3">วันลา</th>
+                    <th class="text-left py-2 px-3">Employee</th>
+                    <th class="text-left px-3">Department</th>
+                    <th class="text-right px-3">Leave Days</th>
                 </tr>
             </thead>
             <tbody>
@@ -188,7 +188,7 @@
                 {% empty %}
                 <tr>
                     <td colspan="3" class="py-3 text-center text-slate-500 dark:text-slate-400">
-                        ยังไม่มีข้อมูลวันลาที่อนุมัติ
+                        No approved leave day data available
                     </td>
                 </tr>
                 {% endfor %}
@@ -197,22 +197,22 @@
     </div>
 </div>
 
-<!-- ตารางลาช่วงนี้ -->
+<!-- Upcoming Leave Schedule -->
 <div class="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm
             dark:border-slate-800 dark:bg-slate-900/70">
     <div class="flex items-center justify-between mb-2">
         <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
-            ตารางลาช่วงนี้ (วันนี้ + 7 วันถัดไป)
+            Upcoming Leave Schedule (Today + Next 7 Days)
         </p>
     </div>
 
     <table class="w-full text-sm">
         <thead class="bg-slate-50 dark:bg-slate-800/70">
             <tr>
-                <th class="text-left py-2 px-3">วันที่</th>
-                <th class="text-left px-3">พนักงาน</th>
-                <th class="text-left px-3">แผนก</th>
-                <th class="text-left px-3">ประเภทการลา</th>
+                <th class="text-left py-2 px-3">Date</th>
+                <th class="text-left px-3">Employee</th>
+                <th class="text-left px-3">Department</th>
+                <th class="text-left px-3">Leave Type</th>
             </tr>
         </thead>
         <tbody>
@@ -234,7 +234,7 @@
             {% empty %}
             <tr>
                 <td colspan="4" class="py-3 text-center text-slate-500 dark:text-slate-400">
-                    ไม่มีคำขอลาในช่วงวันนี้ถึง 7 วันข้างหน้า
+                    No leave requests from today through the next 7 days
                 </td>
             </tr>
             {% endfor %}
@@ -256,7 +256,7 @@
         data: {
             labels: monthlyLabels,
             datasets: [{
-                label: 'จำนวนคำขอ',
+                label: 'Number of Requests',
                 data: monthlyCounts,
                 tension: 0.3,
                 fill: false,
@@ -273,7 +273,7 @@
         data: {
             labels: departmentLabels,
             datasets: [{
-                label: 'จำนวนคำขอ',
+                label: 'Number of Requests',
                 data: departmentCounts,
             }]
         },

@@ -8,16 +8,16 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-semibold tracking-tight">
-                รายละเอียดคำขอลางาน
+                Leave Request Details
             </h1>
             <p class="text-sm text-slate-500 dark:text-slate-400">
-                ตรวจสอบรายละเอียดคำขอ และอนุมัติ / ปฏิเสธได้จากหน้านี้
+                Review the request details and approve / reject from this page
             </p>
         </div>
 
         <a href="{% url 'leave_app:manager_leave_list' %}"
             class="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
-            ← กลับไปหน้ารายการคำขอ
+            ← Back to Request List
         </a>
     </div>
 
@@ -26,7 +26,7 @@
                 dark:border-slate-800 dark:bg-slate-900/70 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-sm">
             <div>
-                <span class="text-slate-500 dark:text-slate-400">พนักงาน</span>
+                <span class="text-slate-500 dark:text-slate-400">Employee</span>
                 <div class="font-medium text-slate-800 dark:text-slate-100">
                     {{ leave.employee.employee_code }} –
                     {{ leave.employee.user.get_full_name|default:leave.employee.user.username }}
@@ -34,33 +34,33 @@
             </div>
 
             <div>
-                <span class="text-slate-500 dark:text-slate-400">แผนก</span>
+                <span class="text-slate-500 dark:text-slate-400">Department</span>
                 <div class="font-medium text-slate-800 dark:text-slate-100">
                     {{ leave.employee.department.name|default:"-" }}
                 </div>
             </div>
 
             <div>
-                <span class="text-slate-500 dark:text-slate-400">ประเภทการลา</span>
+                <span class="text-slate-500 dark:text-slate-400">Leave Type</span>
                 <div class="font-medium text-slate-800 dark:text-slate-100">
                     {{ leave.leave_type.name }}
                 </div>
             </div>
 
             <div>
-                <span class="text-slate-500 dark:text-slate-400">ช่วงเวลา</span>
+                <span class="text-slate-500 dark:text-slate-400">Duration</span>
                 <div class="font-medium text-slate-800 dark:text-slate-100">
                     {{ leave.start_date }} – {{ leave.end_date }}
                     {% if leave.half_day %}
                     <span class="ml-1 text-xs text-indigo-600 dark:text-indigo-400">
-                        (ครึ่งวัน)
+                        (Half Day)
                     </span>
                     {% endif %}
                 </div>
             </div>
 
             <div>
-                <span class="text-slate-500 dark:text-slate-400">สถานะ</span>
+                <span class="text-slate-500 dark:text-slate-400">Status</span>
                 <div class="mt-1">
                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                         {% if leave.status == 'PENDING' %}
@@ -79,12 +79,12 @@
             </div>
 
             <div>
-                <span class="text-slate-500 dark:text-slate-400">ประเภทการลา</span>
+                <span class="text-slate-500 dark:text-slate-400">Attachment</span>
                 <div class="mt-1">
                     {% if leave.attachment %}
                     <a href="{{ leave.attachment.url }}" target="_blank"
                         class="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-300">
-                        ดูไฟล์
+                        View File
                     </a>
                     {% else %}
                     <span class="text-xs text-slate-400 dark:text-slate-500">-</span>
@@ -96,7 +96,7 @@
         <!-- Reason -->
         <div class="mt-4 border-t pt-4 border-slate-200 dark:border-slate-700">
             <div class="text-sm text-slate-500 dark:text-slate-400 mb-1">
-                เหตุผลการลา
+                Leave Reason
             </div>
             <div class="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-line">
                 {{ leave.reason|default:"-" }}
@@ -112,7 +112,7 @@
 
         <div class="mb-4">
             <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-200">
-                หมายเหตุจากหัวหน้า (ถ้ามี)
+                Manager Comment (Optional)
             </label>
             <textarea name="comment" rows="3" class="w-full rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm
                              focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400
@@ -122,19 +122,19 @@
         <div class="flex gap-2">
             <button type="submit" name="action" value="approve" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm
                            hover:bg-emerald-500 focus:ring-2 focus:ring-emerald-400">
-                ✅ อนุมัติ
+                ✅ Approve
             </button>
 
             <button type="submit" name="action" value="reject" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm
                            hover:bg-rose-500 focus:ring-2 focus:ring-rose-400">
-                ❌ ปฏิเสธ
+                ❌ Reject
             </button>
         </div>
     </form>
     {% else %}
     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700
                 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-200">
-        คำขอลานี้ถูก <strong>{{ leave.get_status_display }}</strong> แล้ว
+        This leave request has been <strong>{{ leave.get_status_display }}</strong>
     </div>
     {% endif %}
 </div>

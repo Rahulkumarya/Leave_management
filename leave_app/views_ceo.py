@@ -23,12 +23,10 @@ def ceo_dashboard(request):
     except ValueError:
         year = timezone.now().year
 
-    # พนักงานที่ยัง Active
-    total_employees = EmployeeProfile.objects.filter(
-        user__is_active=True
-    ).count()
+    # Active employees
+    total_employees = EmployeeProfile.objects.filter(user__is_active=True).count()
 
-    # คำขอทุกสถานะในปีนั้น
+    # All requests in that year (all statuses)
     qs_year = LeaveRequest.objects.filter(start_date__year=year)
 
     total_requests = qs_year.count()
@@ -37,16 +35,15 @@ def ceo_dashboard(request):
     rejected_count = qs_year.filter(status=LeaveRequest.STATUS_REJECTED).count()
     cancelled_count = qs_year.filter(status=LeaveRequest.STATUS_CANCELLED).count()
 
-    # ✅ ใช้เฉพาะใบที่ Approved สำหรับการนับ "วันลา"
-    approved_qs_year = (
-        qs_year.filter(status=LeaveRequest.STATUS_APPROVED)
-        .select_related("employee__user", "employee__department", "leave_type")
-    )
+    # ✅ Use only Approved leaves for calculating "leave days"
+    approved_qs_year = qs_year.filter(
+        status=LeaveRequest.STATUS_APPROVED
+    ).select_related("employee__user", "employee__department", "leave_type")
 
-    # ---------- KPI: total & avg leave days ----------
+    # ---------- KPI: total & average leave days ----------
     total_leave_days = 0.0
 
-    # สำหรับอันดับแผนก / พนักงาน
+    # For department / employee ranking
     dept_days: dict[str, float] = {}
     emp_days: dict[EmployeeProfile, float] = {}
 
@@ -60,11 +57,13 @@ def ceo_dashboard(request):
         )
         total_leave_days += days
 
-        # รวมวันลาเป็นรายแผนก
-        dept_name = leave.employee.department.name if leave.employee.department else "No Dept"
+        # Sum leave days by department
+        dept_name = (
+            leave.employee.department.name if leave.employee.department else "No Dept"
+        )
         dept_days[dept_name] = dept_days.get(dept_name, 0.0) + days
 
-        # รวมวันลาเป็นรายพนักงาน
+        # Sum leave days by employee
         emp = leave.employee
         emp_days[emp] = emp_days.get(emp, 0.0) + days
 
@@ -79,9 +78,7 @@ def ceo_dashboard(request):
         reverse=True,
     )[:5]
 
-    top_departments = [
-        {"name": name, "days": days} for name, days in top_departments
-    ]
+    top_departments = [{"name": name, "days": days} for name, days in top_departments]
 
     # ---------- Top Employees (by leave days) ----------
     top_employees_raw = sorted(
@@ -103,7 +100,7 @@ def ceo_dashboard(request):
             }
         )
 
-    # ---------- กราฟจำนวนคำขอลาต่อเดือน ----------
+    # ---------- Chart: Number of leave requests per month ----------
     monthly_qs = (
         qs_year.annotate(month=TruncMonth("start_date"))
         .values("month")
@@ -114,7 +111,7 @@ def ceo_dashboard(request):
     monthly_labels = [item["month"].strftime("%b") for item in monthly_qs]
     monthly_counts = [item["count"] for item in monthly_qs]
 
-    # ---------- กราฟตามแผนก ----------
+    # ---------- Chart by department ----------
     dept_qs = (
         qs_year.values("employee__department__name")
         .annotate(count=Count("id"))
@@ -126,7 +123,7 @@ def ceo_dashboard(request):
     ]
     department_counts = [item["count"] for item in dept_qs]
 
-    # ---------- กราฟตามประเภทการลา ----------
+    # ---------- Chart by leave type ----------
     type_qs = (
         qs_year.values("leave_type__name")
         .annotate(count=Count("id"))
@@ -136,13 +133,14 @@ def ceo_dashboard(request):
     leave_type_labels = [item["leave_type__name"] for item in type_qs]
     leave_type_counts = [item["count"] for item in type_qs]
 
-    # ✅ ตารางลาช่วงนี้ (วันนี้ + 7 วันถัดไป) เฉพาะ Approved
+    # ✅ Upcoming leave table (today + next 7 days), Approved only
     today = timezone.now().date()
     next_7 = today + timedelta(days=7)
 
     upcoming_leaves = (
-        LeaveRequest.objects
-        .select_related("employee__user", "employee__department", "leave_type")
+        LeaveRequest.objects.select_related(
+            "employee__user", "employee__department", "leave_type"
+        )
         .filter(
             status=LeaveRequest.STATUS_APPROVED,
             start_date__lte=next_7,

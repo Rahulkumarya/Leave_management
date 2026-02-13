@@ -1,7 +1,7 @@
 {% extends "leave_app/base.html" %}
 {% load nav_extras %}
 
-{% block title %}HR - แก้ไขพนักงาน{% endblock %}
+{% block title %}HR - Edit Employee{% endblock %}
 
 {% block content %}
 <div class="mx-auto">
@@ -10,17 +10,17 @@
     <div class="mb-4 flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-semibold tracking-tight">
-                แก้ไขพนักงาน {{ profile.employee_code }}
+                Edit Employee {{ profile.employee_code }}
             </h1>
             <p class="text-sm text-slate-500 dark:text-slate-400">
-                จัดการข้อมูล User + โปรไฟล์ + สถานะการใช้งาน
+                Manage User + Profile + Account Status
             </p>
         </div>
         <div class="text-right text-xs text-slate-500 dark:text-slate-400">
             <div>Username: <span class="font-mono">{{ user_obj.username }}</span></div>
-            <div>สร้างเมื่อ: {{ user_obj.date_joined|date:"Y-m-d H:i" }}</div>
+            <div>Created on: {{ user_obj.date_joined|date:"Y-m-d H:i" }}</div>
             {% if user_obj.last_login %}
-            <div>เข้าใช้ล่าสุด: {{ user_obj.last_login|date:"Y-m-d H:i" }}</div>
+            <div>Last login: {{ user_obj.last_login|date:"Y-m-d H:i" }}</div>
             {% endif %}
         </div>
     </div>
@@ -29,7 +29,7 @@
     <div class="max-w-3xl mx-auto rounded-2xl border border-slate-100 bg-white/80 p-6 shadow-sm
                 dark:border-slate-800 dark:bg-slate-900/70">
 
-        <!-- ฟอร์มหลัก -->
+        <!-- Main Form -->
         <form method="post" id="employee-form">
             {% csrf_token %}
 
@@ -99,51 +99,51 @@
             {% endif %}
         </form>
 
-        <!-- ปุ่มต่าง ๆ -->
+        <!-- Buttons -->
         <div class="mt-4 flex flex-wrap gap-2 justify-between">
-            <!-- ปุ่มบันทึกฟอร์มหลัก -->
+            <!-- Main form buttons -->
             <div class="flex gap-2">
                 <button type="submit" form="employee-form" name="save"
                         class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm
                                hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400
                                dark:bg-indigo-500 dark:hover:bg-indigo-400">
-                    บันทึกและกลับไปหน้ารายชื่อ
+                    Save and Return to List
                 </button>
             <button type="submit" form="employee-form" name="stay" value="1"
                     class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800
                            hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
-                บันทึกและอยู่หน้านี้
+                Save and Stay on This Page
             </button>
             </div>
 
-            <!-- ฟอร์ม toggle active แยกต่างหาก -->
+            <!-- Separate toggle active form -->
             <form method="post"
                   action="{% url 'leave_app:hr_employee_toggle_active' profile.pk %}"
                   class="ml-auto"
-                  onsubmit="return confirm('ต้องการสลับสถานะการใช้งานของผู้ใช้นี้หรือไม่?');">
+                  onsubmit="return confirm('Do you want to toggle this user account status?');">
                 {% csrf_token %}
                 {% if user_obj.is_active %}
                 <button type="submit"
                         class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm
                                hover:bg-rose-500 dark:bg-rose-500 dark:hover:bg-rose-400">
-                    ปิดการใช้งานบัญชี
+                    Deactivate Account
                 </button>
                 {% else %}
                 <button type="submit"
                         class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm
                                hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400">
-                    เปิดใช้งานบัญชี
+                    Activate Account
                 </button>
                 {% endif %}
             </form>
         </div>
     </div>
 
-    <!-- Link กลับล่างสุด -->
+    <!-- Bottom Back Link -->
     <div class="mt-6">
         <a href="{% url 'leave_app:hr_employee_list' %}"
            class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
-            ← กลับไปหน้ารายชื่อพนักงาน
+            ← Back to Employee List
         </a>
     </div>
 </div>

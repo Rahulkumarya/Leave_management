@@ -1,4 +1,3 @@
-
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.forms import UserCreationForm
@@ -24,7 +23,7 @@ def register(request):
             create_default_leave_balances(profile)
 
             auth_login(request, user)
-            messages.success(request, "สมัครสมาชิกสำเร็จแล้ว")
+            messages.success(request, "Registration successful")
             return redirect("leave_app:dashboard")
     else:
         form = UserCreationForm()

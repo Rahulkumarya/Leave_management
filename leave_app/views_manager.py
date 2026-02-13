@@ -43,7 +43,7 @@ def manager_leave_detail(request, pk):
     )
 
     if leave_req.employee.manager != request.user and not request.user.is_superuser:
-        return HttpResponseForbidden("คุณไม่มีสิทธิ์ดูคำขอนี้")
+        return HttpResponseForbidden("You do not have permission to view this request")
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -51,23 +51,17 @@ def manager_leave_detail(request, pk):
 
         try:
             if action == "approve":
-                approve_leave_request(
-                    leave_req, approver=request.user, comment=comment
-                )
-                messages.success(request, "อนุมัติคำขอลาเรียบร้อยแล้ว")
+                approve_leave_request(leave_req, approver=request.user, comment=comment)
+                messages.success(request, "Leave request approved successfully")
             elif action == "reject":
-                reject_leave_request(
-                    leave_req, approver=request.user, comment=comment
-                )
-                messages.success(request, "ปฏิเสธคำขอลาเรียบร้อยแล้ว")
+                reject_leave_request(leave_req, approver=request.user, comment=comment)
+                messages.success(request, "Leave request rejected successfully")
             else:
-                messages.error(request, "คำสั่งไม่ถูกต้อง")
+                messages.error(request, "Invalid action")
         except ValidationError as e:
             messages.error(request, e.message)
 
         return redirect("leave_app:manager_leave_list")
 
     context = {"leave": leave_req}
-    return render(
-        request, "leave_app/manager/manager_leave_detail.html", context
-    )
+    return render(request, "leave_app/manager/manager_leave_detail.html", context)

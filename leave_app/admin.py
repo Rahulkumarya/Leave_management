@@ -9,3 +9,9 @@ admin.site.register(LeaveType)
 admin.site.register(LeaveBalance)
 admin.site.register(Holiday)
 admin.site.register(LeaveRequest)
+
+
+# Custom admin site titles
+admin.site.site_header = "Leave Management System Admin"
+admin.site.site_title = "Leave Management System Portal"
+admin.site.index_title = "Welcome to Leave Management System"

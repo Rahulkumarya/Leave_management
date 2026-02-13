@@ -1,199 +1,199 @@
 [
-{
-  "model": "leave_app.department",
-  "pk": 1,
-  "fields": {
-    "name": "Services Engineer",
-    "code": "EE"
+  {
+    "model": "leave_app.department",
+    "pk": 1,
+    "fields": {
+      "name": "Services Engineer",
+      "code": "EE"
+    }
+  },
+  {
+    "model": "leave_app.department",
+    "pk": 2,
+    "fields": {
+      "name": "Software Engineer",
+      "code": "SE"
+    }
+  },
+  {
+    "model": "leave_app.department",
+    "pk": 3,
+    "fields": {
+      "name": "Front-End",
+      "code": "FE"
+    }
+  },
+  {
+    "model": "leave_app.department",
+    "pk": 4,
+    "fields": {
+      "name": "Back-End",
+      "code": "BE"
+    }
+  },
+  {
+    "model": "leave_app.department",
+    "pk": 5,
+    "fields": {
+      "name": "System Analyst",
+      "code": "SA"
+    }
+  },
+  {
+    "model": "leave_app.department",
+    "pk": 6,
+    "fields": {
+      "name": "Security Engineer",
+      "code": "CE"
+    }
+  },
+  {
+    "model": "leave_app.department",
+    "pk": 7,
+    "fields": {
+      "name": "QA Engineer",
+      "code": "QA"
+    }
+  },
+  {
+    "model": "leave_app.department",
+    "pk": 8,
+    "fields": {
+      "name": "IT Support",
+      "code": "IT"
+    }
+  },
+  {
+    "model": "leave_app.department",
+    "pk": 9,
+    "fields": {
+      "name": "Human Resources",
+      "code": "HR"
+    }
+  },
+  {
+    "model": "leave_app.department",
+    "pk": 10,
+    "fields": {
+      "name": "Chief Executive Officer",
+      "code": "CEO"
+    }
+  },
+  {
+    "model": "leave_app.leavetype",
+    "pk": 1,
+    "fields": {
+      "name": "Sick Leave",
+      "code": "Sick leave",
+      "description": "",
+      "default_allocation": "30.00",
+      "allow_half_day": true,
+      "require_attachment": false,
+      "is_paid": true
+    }
+  },
+  {
+    "model": "leave_app.leavetype",
+    "pk": 2,
+    "fields": {
+      "name": "Annual Leave",
+      "code": "Annual",
+      "description": "",
+      "default_allocation": "6.00",
+      "allow_half_day": true,
+      "require_attachment": false,
+      "is_paid": true
+    }
+  },
+  {
+    "model": "leave_app.leavetype",
+    "pk": 3,
+    "fields": {
+      "name": "Personal Leave",
+      "code": "Personal",
+      "description": "",
+      "default_allocation": "5.00",
+      "allow_half_day": true,
+      "require_attachment": false,
+      "is_paid": true
+    }
+  },
+  {
+    "model": "leave_app.leavetype",
+    "pk": 4,
+    "fields": {
+      "name": "Maternity Leave",
+      "code": "Maternity",
+      "description": "",
+      "default_allocation": "98.00",
+      "allow_half_day": true,
+      "require_attachment": false,
+      "is_paid": true
+    }
+  },
+  {
+    "model": "leave_app.leavetype",
+    "pk": 5,
+    "fields": {
+      "name": "Family Care Leave",
+      "code": "FAMILY",
+      "description": "",
+      "default_allocation": "7.00",
+      "allow_half_day": true,
+      "require_attachment": false,
+      "is_paid": true
+    }
+  },
+  {
+    "model": "leave_app.leavetype",
+    "pk": 6,
+    "fields": {
+      "name": "Study / Training Leave",
+      "code": "STUDY",
+      "description": "",
+      "default_allocation": "10.00",
+      "allow_half_day": true,
+      "require_attachment": false,
+      "is_paid": true
+    }
+  },
+  {
+    "model": "leave_app.leavetype",
+    "pk": 7,
+    "fields": {
+      "name": "Ordination Leave",
+      "code": "ORDINATION",
+      "description": "",
+      "default_allocation": "30.00",
+      "allow_half_day": true,
+      "require_attachment": false,
+      "is_paid": true
+    }
+  },
+  {
+    "model": "leave_app.leavetype",
+    "pk": 8,
+    "fields": {
+      "name": "Military Leave",
+      "code": "MILITARY",
+      "description": "",
+      "default_allocation": "0.00",
+      "allow_half_day": true,
+      "require_attachment": false,
+      "is_paid": true
+    }
+  },
+  {
+    "model": "leave_app.leavetype",
+    "pk": 9,
+    "fields": {
+      "name": "Unpaid Leave",
+      "code": "UNPAID",
+      "description": "",
+      "default_allocation": "0.00",
+      "allow_half_day": true,
+      "require_attachment": false,
+      "is_paid": true
+    }
   }
-},
-{
-  "model": "leave_app.department",
-  "pk": 2,
-  "fields": {
-    "name": "Software Engineer",
-    "code": "SE"
-  }
-},
-{
-  "model": "leave_app.department",
-  "pk": 3,
-  "fields": {
-    "name": "Front-End",
-    "code": "FE"
-  }
-},
-{
-  "model": "leave_app.department",
-  "pk": 4,
-  "fields": {
-    "name": "Back-End",
-    "code": "BE"
-  }
-},
-{
-  "model": "leave_app.department",
-  "pk": 5,
-  "fields": {
-    "name": "System Analyst",
-    "code": "SA"
-  }
-},
-{
-  "model": "leave_app.department",
-  "pk": 6,
-  "fields": {
-    "name": "Security Engineer",
-    "code": "CE"
-  }
-},
-{
-  "model": "leave_app.department",
-  "pk": 7,
-  "fields": {
-    "name": "QA Engineer",
-    "code": "QA"
-  }
-},
-{
-  "model": "leave_app.department",
-  "pk": 8,
-  "fields": {
-    "name": "IT Support",
-    "code": "IT"
-  }
-},
-{
-  "model": "leave_app.department",
-  "pk": 9,
-  "fields": {
-    "name": "Human Resources",
-    "code": "HR"
-  }
-},
-{
-  "model": "leave_app.department",
-  "pk": 10,
-  "fields": {
-    "name": "Chief Executive Officer",
-    "code": "CEO"
-  }
-},
-{
-  "model": "leave_app.leavetype",
-  "pk": 1,
-  "fields": {
-    "name": "ลากิจ",
-    "code": "Sick leave",
-    "description": "",
-    "default_allocation": "30.00",
-    "allow_half_day": true,
-    "require_attachment": false,
-    "is_paid": true
-  }
-},
-{
-  "model": "leave_app.leavetype",
-  "pk": 2,
-  "fields": {
-    "name": "ลาพักร้อน",
-    "code": "Annual",
-    "description": "",
-    "default_allocation": "6.00",
-    "allow_half_day": true,
-    "require_attachment": false,
-    "is_paid": true
-  }
-},
-{
-  "model": "leave_app.leavetype",
-  "pk": 3,
-  "fields": {
-    "name": "ลากิจ",
-    "code": "Personal",
-    "description": "",
-    "default_allocation": "5.00",
-    "allow_half_day": true,
-    "require_attachment": false,
-    "is_paid": true
-  }
-},
-{
-  "model": "leave_app.leavetype",
-  "pk": 4,
-  "fields": {
-    "name": "ลาคลอด",
-    "code": "Maternity",
-    "description": "",
-    "default_allocation": "98.00",
-    "allow_half_day": true,
-    "require_attachment": false,
-    "is_paid": true
-  }
-},
-{
-  "model": "leave_app.leavetype",
-  "pk": 5,
-  "fields": {
-    "name": "ลาดูแลครอบครัว",
-    "code": "FAMILY",
-    "description": "",
-    "default_allocation": "7.00",
-    "allow_half_day": true,
-    "require_attachment": false,
-    "is_paid": true
-  }
-},
-{
-  "model": "leave_app.leavetype",
-  "pk": 6,
-  "fields": {
-    "name": "ลาศึกษา / ฝึกอบรม",
-    "code": "STUDY",
-    "description": "",
-    "default_allocation": "10.00",
-    "allow_half_day": true,
-    "require_attachment": false,
-    "is_paid": true
-  }
-},
-{
-  "model": "leave_app.leavetype",
-  "pk": 7,
-  "fields": {
-    "name": "ลาอุปสมบท",
-    "code": "ORDINATION",
-    "description": "",
-    "default_allocation": "30.00",
-    "allow_half_day": true,
-    "require_attachment": false,
-    "is_paid": true
-  }
-},
-{
-  "model": "leave_app.leavetype",
-  "pk": 8,
-  "fields": {
-    "name": "ลาทหาร",
-    "code": "MILITARY",
-    "description": "",
-    "default_allocation": "0.00",
-    "allow_half_day": true,
-    "require_attachment": false,
-    "is_paid": true
-  }
-},
-{
-  "model": "leave_app.leavetype",
-  "pk": 9,
-  "fields": {
-    "name": "ลาไม่รับค่าจ้าง",
-    "code": "UNPAID",
-    "description": "",
-    "default_allocation": "0.00",
-    "allow_half_day": true,
-    "require_attachment": false,
-    "is_paid": true
-  }
-}
 ]

@@ -8,8 +8,9 @@ from decimal import Decimal
 
 from .models import LeaveRequest, LeaveBalance, Holiday, LeaveType, EmployeeProfile
 
+
 def calculate_working_days(start_date, end_date, half_day=False):
-    """คำนวณวันทำงานระหว่างช่วงวันที่ (ตัดเสาร์อาทิตย์ + Holiday)"""
+    """Calculate working days between dates (exclude weekends + holidays)"""
     if half_day:
         return Decimal("0.5")
 
@@ -21,16 +22,19 @@ def calculate_working_days(start_date, end_date, half_day=False):
         current += timedelta(days=1)
     return days
 
+
 def calculate_working_days_by_year(start_date, end_date, half_day=False):
     """
-    คืน dict {year: จำนวนวันลาในปีนั้น} โดย
-    - ตัดเสาร์-อาทิตย์
-    - ตัด Holiday
-    - ถ้า half_day == True ต้องเป็นวันเดียวกัน และให้ 0.5 วัน
+    Return dict {year: leave_days_in_that_year}
+    - Exclude weekends
+    - Exclude holidays
+    - If half_day == True must be same start and end date and return 0.5
     """
     if half_day:
         if start_date != end_date:
-            raise ValidationError("ถ้าลาครึ่งวันต้องเป็นวันเดียวกันทั้งวันเริ่มและสิ้นสุด")
+            raise ValidationError(
+                "Half-day leave must have the same start and end date."
+            )
         return {start_date.year: Decimal("0.5")}
 
     days_by_year: dict[int, Decimal] = {}
@@ -45,19 +49,26 @@ def calculate_working_days_by_year(start_date, end_date, half_day=False):
     return days_by_year
 
 
-def validate_leave_request(employee_profile, leave_type, start_date, end_date, half_day=False, instance: LeaveRequest | None = None):
-    # 1) เช็กช่วงวันที่
+def validate_leave_request(
+    employee_profile,
+    leave_type,
+    start_date,
+    end_date,
+    half_day=False,
+    instance: LeaveRequest | None = None,
+):
+    # 1) Check date range
     if end_date < start_date:
         raise ValidationError("End date must be after start date.")
 
     if start_date < timezone.now().date():
         raise ValidationError("Cannot request leave in the past.")
 
-    # 2) ประเภทนี้รองรับครึ่งวันไหม
+    # 2) Check if leave type allows half-day
     if half_day and not leave_type.allow_half_day:
-        raise ValidationError("ประเภทการลานี้ไม่สามารถลาครึ่งวันได้")
+        raise ValidationError("This leave type does not allow half-day leave.")
 
-    # 3) เช็กซ้อนช่วงลาเดิม (pending / approved)
+    # 3) Check overlapping leave (pending / approved)
     overlap_qs = LeaveRequest.objects.filter(
         employee=employee_profile,
         status__in=[LeaveRequest.STATUS_PENDING, LeaveRequest.STATUS_APPROVED],
@@ -65,21 +76,21 @@ def validate_leave_request(employee_profile, leave_type, start_date, end_date, h
         end_date__gte=start_date,
     )
 
-    # 👇 ถ้ามี instance (เช่น ตอน approve ใบนี้เอง) ให้ตัดตัวมันออกจาก query
+    # Exclude current instance (e.g., during approval)
     if instance is not None:
         overlap_qs = overlap_qs.exclude(pk=instance.pk)
 
     if overlap_qs.exists():
         raise ValidationError("Leave request overlaps with existing leave.")
 
-    # 4) คำนวณจำนวนวันลา (แยกตามปี)
+    # 4) Calculate leave days (by year)
     days_by_year = calculate_working_days_by_year(start_date, end_date, half_day)
 
-    # 5) ถ้าเป็นลาแบบไม่จ่ายเงิน (UNPAID) ไม่ต้องเช็กโควต้า
+    # 5) If unpaid leave, skip quota check
     if not leave_type.is_paid:
         return sum(days_by_year.values())
 
-    # 6) เช็กโควต้าต่อปี
+    # 6) Check yearly quota
     for year, days in days_by_year.items():
         try:
             balance = LeaveBalance.objects.get(
@@ -103,7 +114,7 @@ def validate_leave_request(employee_profile, leave_type, start_date, end_date, h
 
 def get_leave_days_for_request(leave_request: LeaveRequest) -> float:
     """
-    คำนวณจำนวนวันลาสำหรับ leave_request ที่มีอยู่ (ใช้ตอน approve)
+    Calculate leave days for an existing leave_request (used during approval)
     """
     return calculate_working_days(
         leave_request.start_date,
@@ -114,9 +125,8 @@ def get_leave_days_for_request(leave_request: LeaveRequest) -> float:
 
 def approve_leave_request(leave_request: LeaveRequest, approver, comment: str = ""):
     if leave_request.status != LeaveRequest.STATUS_PENDING:
-        raise ValidationError("อนุมัติได้เฉพาะคำขอที่อยู่ในสถานะ Pending เท่านั้น")
+        raise ValidationError("Only pending requests can be approved.")
 
-    # validate อีกครั้ง กันกรณีโควต้า/ข้อมูลมีการเปลี่ยนระหว่างรออนุมัติ
     validate_leave_request(
         leave_request.employee,
         leave_request.leave_type,
@@ -126,14 +136,12 @@ def approve_leave_request(leave_request: LeaveRequest, approver, comment: str = 
         instance=leave_request,
     )
 
-    # คำนวณวันลาต่อปี (ใช้ฟังก์ชันใหม่)
     days_by_year = calculate_working_days_by_year(
         leave_request.start_date,
         leave_request.end_date,
         leave_request.half_day,
     )
 
-    # ลาแบบไม่จ่ายเงิน → ไม่ยุ่งกับ LeaveBalance
     if leave_request.leave_type.is_paid:
         for year, days in days_by_year.items():
             try:
@@ -143,30 +151,33 @@ def approve_leave_request(leave_request: LeaveRequest, approver, comment: str = 
                     year=year,
                 )
             except LeaveBalance.DoesNotExist:
-                raise ValidationError("ไม่พบ LeaveBalance สำหรับคำขอนี้")
+                raise ValidationError("Leave balance not found for this request.")
 
             if days > balance.remaining:
-                raise ValidationError("โควต้าวันลาไม่เพียงพอ")
+                raise ValidationError("Insufficient leave balance.")
 
             balance.used += days
             balance.save()
 
-    # อัปเดตสถานะคำขอ
     leave_request.status = LeaveRequest.STATUS_APPROVED
     leave_request.approver = approver
     leave_request.approve_comment = comment
     leave_request.updated_at = timezone.now()
     leave_request.save()
+    print("Leave:", leave_request.leave_type.name)
+    print("Dates:", leave_request.start_date, "-", leave_request.end_date)
+    print("Half day?", leave_request.half_day)
+    print("Days by year:", days_by_year)
 
     notify_leave_status_changed(leave_request)
 
 
 def reject_leave_request(leave_request: LeaveRequest, approver, comment: str = ""):
     """
-    ใช้ปฏิเสธคำขอลา (ไม่ยุ่งกับ balance)
+    Reject leave request (does not affect balance)
     """
     if leave_request.status != LeaveRequest.STATUS_PENDING:
-        raise ValidationError("ปฏิเสธได้เฉพาะคำขอที่อยู่ในสถานะ Pending เท่านั้น")
+        raise ValidationError("Only pending requests can be rejected.")
 
     leave_request.status = LeaveRequest.STATUS_REJECTED
     leave_request.approver = approver
@@ -175,23 +186,38 @@ def reject_leave_request(leave_request: LeaveRequest, approver, comment: str = "
     leave_request.save()
 
     notify_leave_status_changed(leave_request)
-    
-def create_default_leave_balances(employee_profile: EmployeeProfile, year: int | None = None):
+
+
+
+
+
+def create_default_leave_balances(
+    employee_profile: EmployeeProfile, year: int | None = None
+):
     if year is None:
         year = timezone.now().year
 
     leave_types = LeaveType.objects.all()
     for lt in leave_types:
-        LeaveBalance.objects.get_or_create(
+        balance, created = LeaveBalance.objects.get_or_create(
             employee=employee_profile,
             leave_type=lt,
             year=year,
             defaults={
-                "allocated": lt.default_allocation,
-                "used": 0,
+                "allocated": Decimal(lt.default_allocation),
+                "used": Decimal("0"),
             },
         )
-        
+        if created:
+            print(
+                f"✅ Leave balance created for {employee_profile.user.username} - {lt.name} ({year})"
+            )
+        else:
+            print(
+                f"ℹ️ Leave balance already exists for {employee_profile.user.username} - {lt.name} ({year})"
+            )
+
+
 def _send_leave_email(subject: str, message: str, to_emails: list[str]):
     if not to_emails:
         return
@@ -200,7 +226,7 @@ def _send_leave_email(subject: str, message: str, to_emails: list[str]):
         message,
         settings.DEFAULT_FROM_EMAIL,
         to_emails,
-        fail_silently=True,  # กัน error ใน production
+        fail_silently=True,  # prevent errors in production
     )
 
 
@@ -209,26 +235,28 @@ def notify_leave_submitted(leave_request: LeaveRequest):
     user = emp.user
     manager = emp.manager
 
-    # แจ้งพนักงาน
     if user.email:
-        subject = f"ยืนยันคำขอลางานของคุณ ({leave_request.leave_type.name})"
+        subject = (
+            f"Your leave request has been submitted ({leave_request.leave_type.name})"
+        )
         message = (
-            f"คุณได้ส่งคำขอลางานแล้ว\n"
-            f"ประเภท: {leave_request.leave_type.name}\n"
-            f"ช่วงเวลา: {leave_request.start_date} - {leave_request.end_date}\n"
-            f"สถานะปัจจุบัน: {leave_request.get_status_display()}\n"
+            f"You have submitted a leave request\n"
+            f"Type: {leave_request.leave_type.name}\n"
+            f"Period: {leave_request.start_date} - {leave_request.end_date}\n"
+            f"Current status: {leave_request.get_status_display()}\n"
         )
         _send_leave_email(subject, message, [user.email])
 
-    # แจ้งหัวหน้า (ถ้ามี email)
     if manager and manager.email:
-        subject = f"[Pending] คำขอลางานใหม่จาก {user.get_full_name() or user.username}"
+        subject = (
+            f"[Pending] New leave request from {user.get_full_name() or user.username}"
+        )
         message = (
-            f"มีคำขอลางานใหม่รออนุมัติ\n"
-            f"พนักงาน: {emp.employee_code} - {user.get_full_name() or user.username}\n"
-            f"ประเภท: {leave_request.leave_type.name}\n"
-            f"ช่วงเวลา: {leave_request.start_date} - {leave_request.end_date}\n"
-            f"เหตุผล: {leave_request.reason}\n"
+            f"A new leave request is awaiting approval\n"
+            f"Employee: {emp.employee_code} - {user.get_full_name() or user.username}\n"
+            f"Type: {leave_request.leave_type.name}\n"
+            f"Period: {leave_request.start_date} - {leave_request.end_date}\n"
+            f"Reason: {leave_request.reason}\n"
         )
         _send_leave_email(subject, message, [manager.email])
 
@@ -240,24 +268,25 @@ def notify_leave_status_changed(leave_request: LeaveRequest):
     if not user.email:
         return
 
-    subject = f"คำขอลางานของคุณถูกอัปเดตเป็น {leave_request.get_status_display()}"
+    subject = (
+        f"Your leave request has been updated to {leave_request.get_status_display()}"
+    )
     message = (
-        f"คำขอลางานของคุณถูกอัปเดตแล้ว\n"
-        f"ประเภท: {leave_request.leave_type.name}\n"
-        f"ช่วงเวลา: {leave_request.start_date} - {leave_request.end_date}\n"
-        f"สถานะใหม่: {leave_request.get_status_display()}\n"
-        f"หมายเหตุหัวหน้า: {leave_request.approve_comment or '-'}\n"
+        f"Your leave request has been updated\n"
+        f"Type: {leave_request.leave_type.name}\n"
+        f"Period: {leave_request.start_date} - {leave_request.end_date}\n"
+        f"New status: {leave_request.get_status_display()}\n"
+        f"Manager comment: {leave_request.approve_comment or '-'}\n"
     )
     _send_leave_email(subject, message, [user.email])
-    
+
+
 def get_employee_leave_balances(employee_profile, year=None):
     if year is None:
         year = timezone.now().year
 
-    balances = (
-        LeaveBalance.objects
-        .select_related("leave_type")
-        .filter(employee=employee_profile, year=year)
+    balances = LeaveBalance.objects.select_related("leave_type").filter(
+        employee=employee_profile, year=year
     )
 
     return balances
