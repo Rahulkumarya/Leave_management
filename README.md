@@ -129,97 +129,27 @@ Leave-Management-System/
 
 ---
 
-## 🚀 Installation
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/pathipat11/Leave-Management-System.git
-cd Leave-Management-System
-```
-
-### 2. Create virtual environment
-
-```bash
+#Setup Environment
 python -m venv venv
-source venv/bin/activate  # macOS/Linux
-# venv\Scripts\activate  # Windows
-```
+>> venv\Scripts\activate
 
-### 3. Install dependencies
 
-```bash
-pip install -r requirements.txt
-```
+#Balances initated 
+python manage.py init_leave_balances
 
----
-
-## ⚙️ Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-SECRET_KEY=your-secret-key
-DEBUG=True
-
-DB_NAME=leave_mgmt
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_HOST=127.0.0.1
-DB_PORT=5432
-
-EMAIL_HOST_USER=your_email@gmail.com
-EMAIL_HOST_PASSWORD=your_gmail_app_password
-```
-
-> ⚠️ For Gmail, you **must use an App Password**, not your normal email password.
-
----
-
-## 🗄 Database Setup
-
-```bash
-python manage.py migrate
-python manage.py createsuperuser
-```
-
----
-
-## 📦 Initial Data (Fixtures)
-
-Fixtures help initialize departments and leave types easily.
-
-```bash
-mkdir leave_app/fixtures
-
-python manage.py dumpdata leave_app.Department leave_app.LeaveType \
-  --indent 2 > leave_app/fixtures/initial_data.json
-
+#initial data.json load for easy to setup flows 
 python manage.py loaddata leave_app/fixtures/initial_data.json
-```
 
----
 
-## 🚀 Run Development Server
 
-```bash
-python manage.py runserver
-```
 
-Open: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+#for runing server 
+ python manage.py runserver 0.0.0.0:8000      
 
----
 
-## 🎨 Frontend Styling (Tailwind CSS)
+ #for live project via cloudflare tunnel
+ cloudflared tunnel --url http://localhost:8000/
 
-This project uses **Tailwind CSS via CDN** for simplicity.
-
-```html
-<script src="https://cdn.tailwindcss.com"></script>
-```
-
-> ✅ Suitable for development and internal systems
-> ⚠️ For production-scale systems, a build-based Tailwind setup is recommended
 
 ---
 
@@ -281,15 +211,3 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 ---
 
-## 👤 Author
-
-**Pathipat Mattra**
-📧 Email: [pathipat.mattra@gmail.com](mailto:pathipat.mattra@gmail.com)
-🔗 GitHub: [https://github.com/pathipat11/Leave-Management-System.git](https://github.com/pathipat11/Leave-Management-System.git)
-
----
-
-## 📄 License
-
-This project is intended for **educational and internal use**.
-You are free to modify, extend, and adapt it to your needs.
