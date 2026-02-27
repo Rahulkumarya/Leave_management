@@ -168,7 +168,7 @@ def approve_leave_request(leave_request: LeaveRequest, approver, comment: str = 
     print("Dates:", leave_request.start_date, "-", leave_request.end_date)
     print("Half day?", leave_request.half_day)
     print("Days by year:", days_by_year)
-
+    print("Balance updated:", balance.employee, balance.leave_type, balance.used)
     notify_leave_status_changed(leave_request)
 
 
@@ -279,6 +279,8 @@ def notify_leave_status_changed(leave_request: LeaveRequest):
         f"Manager comment: {leave_request.approve_comment or '-'}\n"
     )
     _send_leave_email(subject, message, [user.email])
+
+
 
 
 def get_employee_leave_balances(employee_profile, year=None):
